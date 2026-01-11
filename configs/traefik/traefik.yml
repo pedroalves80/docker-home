@@ -1,0 +1,25 @@
+entryPoints:
+  web:
+    address: ":80"
+    # Optional: Redirect HTTP to HTTPS automatically
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: ":443"
+
+providers:
+  docker:
+    exposedByDefault: false
+    network: proxy_network 
+
+tls:
+  certificates:
+    - certFile: "/cert.pem"
+      keyFile: "/key.pem"
+
+api:
+  dashboard: true
+  insecure: true # Changed to true so you can access the dashboard at :8080 easily

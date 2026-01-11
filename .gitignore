@@ -1,0 +1,5 @@
+.env
+data/
+configs/traefik/cert.pem
+configs/traefik/key.pem
+
