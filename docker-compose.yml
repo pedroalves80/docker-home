@@ -155,10 +155,14 @@ services:
     image: ghcr.io/home-assistant/home-assistant:stable
     container_name: homeassistant
     restart: unless-stopped
+    ports:
+      - "8123:8123"
     networks:
       - proxy
     volumes:
       - ./data/homeassistant:/config
+    environment:
+      - TZ=${TZ:-UTC}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.homeassistant.rule=Host(`homeassistant.local.lan`)"
@@ -243,4 +247,13 @@ services:
       # - TS_AUTHKEY=tskey-auth-xxxxxxx 
       - TS_EXTRA_ARGS=--advertise-exit-node
     restart: unless-stopped
+
+networks:
+  proxy:
+    name: proxy_network
+    driver: bridge
+
+volumes:
+  mosquitto-conf:
+  mosquitto-data:
 

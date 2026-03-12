@@ -3,10 +3,13 @@
 A reproducible home server stack for Raspberry Pi or Linux/ARM computers using Docker Compose, Traefik (as reverse proxy), AdGuard Home (for local DNS rewrites), and HTTPS via self-signed certificates.  
 This repo is structured for easy setup, management, and backup of multiple home services.
 
+> **Migrating from k3s?** See [MIGRATION.md](MIGRATION.md) for a complete k3s → Docker migration guide.
+
 ---
 
 ## Table of Contents
 
+- [Migrating from k3s](#migrating-from-k3s)
 - [Directory Structure](#directory-structure)
 - [Quickstart Checklist](#quickstart-checklist)
 - [Step-by-Step Setup](#step-by-step-setup)
@@ -19,6 +22,24 @@ This repo is structured for easy setup, management, and backup of multiple home 
 - [Backup Recommendations](#backup-recommendations)
 - [Troubleshooting](#troubleshooting)
 - [Extend/Customize](#extendcustomize)
+
+---
+
+## Migrating from k3s
+
+If you're running this stack on k3s and want to migrate to Docker for better stability:
+
+1. **Read the full guide:** [MIGRATION.md](MIGRATION.md)
+2. **Run pre-checks:** `./pre-migration-check.sh`
+3. **Execute migration:** `sudo ./migrate-from-k3s.sh`
+
+The migration script will:
+- Stop k3s
+- Copy all data from k3s PVs to Docker volumes
+- Generate `.env` with your k3s credentials
+- Preserve databases, configs, and state
+
+**Total migration time: ~10 minutes** (depends on AdGuard data size)
 
 ---
 
