@@ -1,0 +1,18 @@
+---
+# Bookmarks for quick access
+- Documentation:
+    - Homepage Docs:
+        - icon: book.png
+          href: https://gethomepage.dev
+          description: Homepage documentation
+
+- Quick Links:
+    - Tailscale Admin:
+        - icon: tailscale.png
+          href: https://login.tailscale.com/admin
+          description: Manage VPN
+
+    - GitHub:
+        - icon: github.png
+          href: https://github.com
+          description: GitHub

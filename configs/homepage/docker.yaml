@@ -1,0 +1,4 @@
+---
+# Docker integration (shows running containers)
+local:
+  socket: /var/run/docker.sock

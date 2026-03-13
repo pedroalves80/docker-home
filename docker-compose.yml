@@ -20,7 +20,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.traefik.rule=Host(`traefik.local.lan`)"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.home.lan`)"
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls=true"
@@ -33,7 +33,7 @@ services:
       - "53:53/tcp"
       - "53:53/udp"
       # Web UI accessible via Traefik or Port 3001
-      - "3001:3000"
+      - "3001:8080"
     networks:
       - proxy
     volumes:
@@ -43,14 +43,14 @@ services:
       - TZ=${TZ:-UTC}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.adguard.rule=Host(`adguard.local.lan`)"
-      - "traefik.http.services.adguard.loadbalancer.server.port=3001"
+      - "traefik.http.routers.adguard.rule=Host(`adguard.home.lan`)"
+      - "traefik.http.services.adguard.loadbalancer.server.port=8080"
       - "traefik.http.routers.adguard.entrypoints=websecure"
       - "traefik.http.routers.adguard.tls=true"
 
   # --- Model 3 instance
   teslamate_model3_db:
-    image: postgres:18-trixie
+    image: postgres:16
     container_name: teslamate_model3_db
     restart: unless-stopped
     networks:
@@ -80,14 +80,14 @@ services:
       TZ: ${TZ:-UTC}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.teslamate-model3.rule=Host(`teslamate-model3.local.lan`)"
+      - "traefik.http.routers.teslamate-model3.rule=Host(`teslamate-model3.home.lan`)"
       - "traefik.http.services.teslamate-model3.loadbalancer.server.port=4000"
       - "traefik.http.routers.teslamate-model3.entrypoints=websecure"
       - "traefik.http.routers.teslamate-model3.tls=true"
 
   # --- Model Y instance
   teslamate_modely_db:
-    image: postgres:18-trixie
+    image: postgres:16
     container_name: teslamate_modely_db
     restart: unless-stopped
     networks:
@@ -117,7 +117,7 @@ services:
       TZ: ${TZ:-UTC}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.teslamate-modely.rule=Host(`teslamate-modely.local.lan`)"
+      - "traefik.http.routers.teslamate-modely.rule=Host(`teslamate-modely.home.lan`)"
       - "traefik.http.services.teslamate-modely.loadbalancer.server.port=4000"
       - "traefik.http.routers.teslamate-modely.entrypoints=websecure"
       - "traefik.http.routers.teslamate-modely.tls=true"
@@ -146,7 +146,7 @@ services:
       - ./data/grafana:/var/lib/grafana
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.grafana.rule=Host(`grafana.local.lan`)"
+      - "traefik.http.routers.grafana.rule=Host(`grafana.home.lan`)"
       - "traefik.http.services.grafana.loadbalancer.server.port=3000"
       - "traefik.http.routers.grafana.entrypoints=websecure"
       - "traefik.http.routers.grafana.tls=true"
@@ -165,7 +165,7 @@ services:
       - TZ=${TZ:-UTC}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.homeassistant.rule=Host(`homeassistant.local.lan`)"
+      - "traefik.http.routers.homeassistant.rule=Host(`homeassistant.home.lan`)"
       - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
       - "traefik.http.routers.homeassistant.entrypoints=websecure"
       - "traefik.http.routers.homeassistant.tls=true"
@@ -178,7 +178,7 @@ services:
     volumes:
       - ./data/vaultwarden:/data
     environment:
-      - DOMAIN=https://vaultwarden.local.lan          # ← CHANGE THIS to match your Traefik rule!
+      - DOMAIN=https://vaultwarden.home.lan          # ← CHANGE THIS to match your Traefik rule!
       - SIGNUPS_ALLOWED=true                          # Set to false after creating your first account!
       - TZ=${TZ:-UTC}
       # Optional but highly recommended:
@@ -191,7 +191,7 @@ services:
       - ADMIN_RATELIMIT_MAX_BURST=5
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.vaultwarden.rule=Host(`vaultwarden.local.lan`)"
+      - "traefik.http.routers.vaultwarden.rule=Host(`vaultwarden.home.lan`)"
       - "traefik.http.routers.vaultwarden.entrypoints=websecure"
       - "traefik.http.routers.vaultwarden.tls=true"
       - "traefik.http.services.vaultwarden.loadbalancer.server.port=80"
@@ -208,7 +208,7 @@ services:
       - ./data/prometheus:/prometheus
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.prometheus.rule=Host(`prometheus.local.lan`)"
+      - "traefik.http.routers.prometheus.rule=Host(`prometheus.home.lan`)"
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
       - "traefik.http.routers.prometheus.entrypoints=websecure"
       - "traefik.http.routers.prometheus.tls=true"
@@ -225,16 +225,94 @@ services:
       - /var/lib/docker/:/var/lib/docker:ro
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.local.lan`)"
+      - "traefik.http.routers.cadvisor.rule=Host(`cadvisor.home.lan`)"
       - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
       - "traefik.http.routers.cadvisor.entrypoints=websecure"
       - "traefik.http.routers.cadvisor.tls=true"
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    networks:
+      - proxy
+    restart: unless-stopped
+    command:
+      - '--path.rootfs=/host'
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    volumes:
+      - /:/host:ro,rslave
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.node-exporter.rule=Host(`node-exporter.home.lan`)"
+      - "traefik.http.services.node-exporter.loadbalancer.server.port=9100"
+      - "traefik.http.routers.node-exporter.entrypoints=websecure"
+      - "traefik.http.routers.node-exporter.tls=true"
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    networks:
+      - proxy
+    restart: unless-stopped
+    volumes:
+      - ./data/uptime-kuma:/app/data
+    environment:
+      - TZ=${TZ:-UTC}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.uptime-kuma.rule=Host(`uptime.home.lan`)"
+      - "traefik.http.services.uptime-kuma.loadbalancer.server.port=3001"
+      - "traefik.http.routers.uptime-kuma.entrypoints=websecure"
+      - "traefik.http.routers.uptime-kuma.tls=true"
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    networks:
+      - proxy
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./data/portainer:/data
+    environment:
+      - TZ=${TZ:-UTC}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.portainer.rule=Host(`portainer.home.lan`)"
+      - "traefik.http.services.portainer.loadbalancer.server.port=9000"
+      - "traefik.http.routers.portainer.entrypoints=websecure"
+      - "traefik.http.routers.portainer.tls=true"
+
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    networks:
+      - proxy
+    restart: unless-stopped
+    volumes:
+      - ./configs/homepage:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=${TZ:-UTC}
+      - HOMEPAGE_ALLOWED_HOSTS=home.home.lan
+      - HOMEPAGE_VAR_HOMEASSISTANT_KEY=${HOMEPAGE_VAR_HOMEASSISTANT_KEY}
+      - HOMEPAGE_VAR_PORTAINER_KEY=${HOMEPAGE_VAR_PORTAINER_KEY}
+      - HOMEPAGE_VAR_ADGUARD_USERNAME=${HOMEPAGE_VAR_ADGUARD_USERNAME}
+      - HOMEPAGE_VAR_ADGUARD_PASSWORD=${HOMEPAGE_VAR_ADGUARD_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.homepage.rule=Host(`home.home.lan`)"
+      - "traefik.http.services.homepage.loadbalancer.server.port=3000"
+      - "traefik.http.routers.homepage.entrypoints=websecure"
+      - "traefik.http.routers.homepage.tls=true"
+
   tailscale:
     image: tailscale/tailscale:latest
     container_name: tailscale
     hostname: rpi-raven
-    networks:
-      - proxy
+    network_mode: host
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -243,10 +321,100 @@ services:
       - /dev/net/tun:/dev/net/tun
     environment:
       - TS_STATE_DIR=/var/lib/tailscale
-      # You can generate an auth key in the Tailscale admin console to auto-login
-      # - TS_AUTHKEY=tskey-auth-xxxxxxx 
-      - TS_EXTRA_ARGS=--advertise-exit-node
+      - TS_AUTHKEY=${TS_AUTHKEY}
+      - TS_EXTRA_ARGS=--advertise-routes=10.10.99.0/24 --advertise-exit-node --accept-dns=false
     restart: unless-stopped
+
+  # PriceBuddy - Price tracking and wishlist
+  pricebuddy_db:
+    image: mysql:8.2
+    container_name: pricebuddy_db
+    restart: unless-stopped
+    networks:
+      - proxy
+    environment:
+      MYSQL_DATABASE: ${PRICEBUDDY_DB_NAME:-pricebuddy}
+      MYSQL_USER: ${PRICEBUDDY_DB_USER:-pricebuddy}
+      MYSQL_PASSWORD: ${PRICEBUDDY_DB_PASS:-pricebuddy123}
+      MYSQL_ROOT_PASSWORD: ${PRICEBUDDY_DB_ROOT_PASS:-rootpass123}
+    volumes:
+      - ./data/pricebuddy/mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 1m
+
+  pricebuddy_scraper:
+    image: jez500/seleniumbase-scrapper:latest
+    container_name: pricebuddy_scraper
+    restart: unless-stopped
+    networks:
+      - proxy
+    environment:
+      - DEFAULT_CACHE=true
+      - DEFAULT_CACHE_TTL=3600
+      - DEFAULT_TIMEOUT=60000
+      - DEFAULT_INCOGNITO=true
+
+  pricebuddy:
+    image: jez500/pricebuddy:latest
+    container_name: pricebuddy
+    restart: unless-stopped
+    networks:
+      - proxy
+    depends_on:
+      pricebuddy_db:
+        condition: service_healthy
+    environment:
+      - APP_KEY=${PRICEBUDDY_APP_KEY}
+      - APP_URL=https://pricebuddy.home.lan
+      - ASSET_URL=https://pricebuddy.home.lan
+      - FORCE_HTTPS=true
+      - TRUSTED_PROXIES=*
+      - DB_HOST=pricebuddy_db
+      - DB_USERNAME=${PRICEBUDDY_DB_USER:-pricebuddy}
+      - DB_PASSWORD=${PRICEBUDDY_DB_PASS:-pricebuddy123}
+      - DB_DATABASE=${PRICEBUDDY_DB_NAME:-pricebuddy}
+      - APP_USER_EMAIL=${PRICEBUDDY_ADMIN_EMAIL:-admin@example.com}
+      - APP_USER_PASSWORD=${PRICEBUDDY_ADMIN_PASS:-admin}
+      - SCRAPER_BASE_URL=http://pricebuddy_scraper:3000
+      - AFFILIATE_ENABLED=false
+      - TZ=${TZ:-UTC}
+    volumes:
+      - ./data/pricebuddy/storage:/app/storage
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pricebuddy.rule=Host(`pricebuddy.home.lan`)"
+      - "traefik.http.services.pricebuddy.loadbalancer.server.port=80"
+      - "traefik.http.routers.pricebuddy.entrypoints=websecure"
+      - "traefik.http.routers.pricebuddy.tls=true"
+      - "traefik.http.middlewares.pricebuddy-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+      - "traefik.http.routers.pricebuddy.middlewares=pricebuddy-headers"
+
+  apprise:
+    image: caronc/apprise:latest
+    container_name: apprise
+    restart: unless-stopped
+    networks:
+      - proxy
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-UTC}
+      - APPRISE_STATEFUL_MODE=simple
+      - APPRISE_WORKER_COUNT=1
+      - APPRISE_DEFAULT_THEME=light
+    volumes:
+      - ./data/apprise/config:/config
+      - ./data/apprise/attach:/attach
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.apprise.rule=Host(`apprise.home.lan`)"
+      - "traefik.http.services.apprise.loadbalancer.server.port=8000"
+      - "traefik.http.routers.apprise.entrypoints=websecure"
+      - "traefik.http.routers.apprise.tls=true"
 
 networks:
   proxy:

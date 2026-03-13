@@ -1,0 +1,87 @@
+---
+- Home Automation:
+    - Home Assistant:
+        icon: home-assistant.png
+        href: https://homeassistant.home.lan
+        description: Smart home automation
+        widget:
+          type: homeassistant
+          url: http://homeassistant:8123
+          key: {{HOMEPAGE_VAR_HOMEASSISTANT_KEY}}
+
+    - Vaultwarden:
+        icon: vaultwarden.png
+        href: https://vaultwarden.home.lan
+        description: Password manager
+
+    - AdGuard Home:
+        icon: adguard-home.png
+        href: https://adguard.home.lan
+        description: DNS & ad blocking
+
+    - PriceBuddy:
+        icon: mdi-cart-arrow-down
+        href: https://pricebuddy.home.lan
+        description: Price tracking & wishlist
+
+- TeslaMate:
+    - Model 3:
+        icon: si-tesla
+        href: https://teslamate-model3.home.lan
+        description: Model 3 tracking
+
+    - Model Y:
+        icon: si-tesla
+        href: https://teslamate-modely.home.lan
+        description: Model Y tracking
+
+- Monitoring:
+    - Grafana:
+        icon: grafana.png
+        href: https://grafana.home.lan
+        description: Metrics dashboards
+
+    - Prometheus:
+        icon: prometheus.png
+        href: https://prometheus.home.lan
+        description: Metrics collection
+
+    - Uptime Kuma:
+        icon: uptime-kuma.png
+        href: https://uptime.home.lan
+        description: Service monitoring
+
+    - cAdvisor:
+        icon: cadvisor.png
+        href: https://cadvisor.home.lan
+        description: Container metrics
+
+- Management:
+    - Portainer:
+        icon: portainer.png
+        href: https://portainer.home.lan
+        description: Docker GUI
+
+    - Traefik:
+        icon: traefik.png
+        href: https://traefik.home.lan
+        description: Reverse proxy
+        widget:
+          type: traefik
+          url: http://traefik:8080
+
+    - Node Exporter:
+        icon: prometheus.png
+        href: https://node-exporter.home.lan
+        description: System metrics
+
+- Infrastructure:
+    - System Resources:
+        widget:
+          type: resources
+          cpu: true
+          memory: true
+          disk: /
+
+
+
