@@ -9,6 +9,6 @@ providers:
 
 notif:
   telegram:
-    token: "REDACTED_TOKEN"
+    token: "{{ .Env.DIUN_TELEGRAM_TOKEN }}"
     chatIDs:
-      - 6752202857
+      - {{ .Env.DIUN_TELEGRAM_CHAT_ID }}

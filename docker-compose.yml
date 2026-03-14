@@ -490,6 +490,8 @@ services:
     environment:
       - TZ=${TZ:-UTC}
       - LOG_LEVEL=info
+      - DIUN_TELEGRAM_TOKEN=${DIUN_TELEGRAM_TOKEN}
+      - DIUN_TELEGRAM_CHAT_ID=${DIUN_TELEGRAM_CHAT_ID}
 
 networks:
   proxy:
