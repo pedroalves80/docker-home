@@ -20,6 +20,20 @@ pages:
             units: metric
             hour-format: "24h"
 
+          - type: markets
+            title: Markets
+            markets:
+              - symbol: TSLA
+                name: Tesla
+              - symbol: NVDA
+                name: NVIDIA
+              - symbol: AAPL
+                name: Apple
+              - symbol: BTC-USD
+                name: Bitcoin
+              - symbol: ETH-USD
+                name: Ethereum
+
           - type: twitch-channels
             channels:
               - theo
@@ -28,82 +42,44 @@ pages:
               - tsoding
               - rwxrob
 
-          - type: bookmarks
-            groups:
-              - title: Quick Links
-                links:
-                  - title: GitHub
-                    url: https://github.com
-                  - title: Tailscale
-                    url: https://login.tailscale.com/admin
-                  - title: Cloudflare
-                    url: https://dash.cloudflare.com
-
       - size: full
         widgets:
           - type: search
             search-engine: duckduckgo
             autofocus: true
 
-          - type: monitor
-            title: Services
-            cache: 1m
-            allow-insecure: true
-            sites:
-              - title: Home Assistant
-                url: http://homeassistant:8123
-                icon: si:homeassistant
-              - title: AdGuard
-                url: http://adguard:8080
-                icon: si:adguard
-              - title: Grafana
-                url: http://grafana:3000
-                icon: si:grafana
-              - title: Uptime Kuma
-                url: http://uptime-kuma:3001
-                icon: si:uptimekuma
-              - title: Vaultwarden
-                url: http://vaultwarden:80
-                icon: si:bitwarden
-              - title: Portainer
-                url: http://portainer:9000
-                icon: si:portainer
-              - title: Traefik
-                url: http://traefik:8080
-                icon: si:traefikproxy
-              - title: Authelia
-                url: http://authelia:9091
-                icon: si:authelia
-              - title: TeslaMate M3
-                url: http://teslamate_model3:4000
-                icon: si:tesla
-              - title: TeslaMate MY
-                url: http://teslamate_modely:4000
-                icon: si:tesla
-              - title: n8n
-                url: http://n8n:5678
-                icon: si:n8n
-              - title: PriceBuddy
-                url: http://pricebuddy:80
-
           - type: group
             widgets:
               - type: hacker-news
-                limit: 10
-                collapse-after: 5
-
-              - type: lobsters
                 limit: 8
                 collapse-after: 4
 
-          - type: rss
-            title: Tech News
-            limit: 8
-            collapse-after: 4
-            feeds:
-              - url: https://www.theverge.com/rss/index.xml
-              - url: https://arstechnica.com/feed/
-              - url: https://feeds.feedburner.com/TechCrunch/
+              - type: reddit
+                subreddit: selfhosted
+                limit: 6
+                collapse-after: 3
+
+          - type: group
+            widgets:
+              - type: reddit
+                subreddit: homelab
+                limit: 6
+                collapse-after: 3
+
+              - type: reddit
+                subreddit: programming
+                limit: 6
+                collapse-after: 3
+
+          - type: videos
+            title: Tech YouTube
+            channels:
+              - UCsBjURrPoezykLs9EqgamOA  # Fireship
+              - UCR-DXc1voovS8nhAvccRZhg  # Jeff Geerling
+              - UC9-y-6csu5WGm29I7JiwpnA  # Computerphile
+              - UCVHFbqXqoYvEWM1Ddxl0QKg  # Level1Techs
+              - UCOk-gHyjcWZNj3Br4oxwh0A  # Techno Tim
+            limit: 6
 
       - size: small
         widgets:
@@ -117,6 +93,27 @@ pages:
             repository: pedroalves80/docker-home
             pull-requests-limit: 3
             issues-limit: 3
+
+          - type: bookmarks
+            groups:
+              - title: Quick Links
+                links:
+                  - title: GitHub
+                    url: https://github.com
+                  - title: Tailscale
+                    url: https://login.tailscale.com/admin
+                  - title: Cloudflare
+                    url: https://dash.cloudflare.com
+
+  - name: Homelab
+    columns:
+      - size: small
+        widgets:
+          - type: clock
+            hour-format: "24h"
+            timezones:
+              - timezone: Europe/Lisbon
+                label: Santo Tirso
 
           - type: bookmarks
             groups:
@@ -159,3 +156,66 @@ pages:
                     url: https://teslamate-model3.home.lan
                   - title: TeslaMate MY
                     url: https://teslamate-modely.home.lan
+
+      - size: full
+        widgets:
+          - type: monitor
+            title: Services
+            cache: 1m
+            allow-insecure: true
+            sites:
+              - title: Home Assistant
+                url: http://homeassistant:8123
+                icon: si:homeassistant
+              - title: AdGuard
+                url: http://adguard:8080
+                icon: si:adguard
+              - title: Grafana
+                url: http://grafana:3000
+                icon: si:grafana
+              - title: Uptime Kuma
+                url: http://uptime-kuma:3001
+                icon: si:uptimekuma
+              - title: Vaultwarden
+                url: http://vaultwarden:80
+                icon: si:bitwarden
+              - title: Portainer
+                url: http://portainer:9000
+                icon: si:portainer
+              - title: Traefik
+                url: http://traefik:8080
+                icon: si:traefikproxy
+              - title: Authelia
+                url: http://authelia:9091
+                icon: si:authelia
+              - title: TeslaMate M3
+                url: http://teslamate_model3:4000
+                icon: si:tesla
+              - title: TeslaMate MY
+                url: http://teslamate_modely:4000
+                icon: si:tesla
+              - title: n8n
+                url: http://n8n:5678
+                icon: si:n8n
+              - title: PriceBuddy
+                url: http://pricebuddy:80
+
+          - type: rss
+            title: Self-Hosted News
+            limit: 10
+            collapse-after: 5
+            feeds:
+              - url: https://selfh.st/rss/
+              - url: https://www.reddit.com/r/selfhosted/.rss
+
+      - size: small
+        widgets:
+          - type: releases
+            title: Release Tracker
+            repositories:
+              - traefik/traefik
+              - grafana/grafana
+              - louislam/uptime-kuma
+              - glanceapp/glance
+              - home-assistant/core
+              - dani-garcia/vaultwarden
