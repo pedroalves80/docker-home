@@ -85,7 +85,7 @@ pages:
                 icon: si:n8n
               - title: PriceBuddy
                 url: http://pricebuddy:80
-                icon: si:shoppingbag
+                icon: https://cdn.jsdelivr.net/gh/walkxcode/dashboard-icons/png/pricebuddy.png
 
           - type: group
             widgets:
