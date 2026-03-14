@@ -22,11 +22,14 @@ pages:
 
           - type: twitch-channels
             channels:
+              - theo
               - theprimeagen
-              - gaules
-              - zackrawrr
+              - bashbunni
+              - teaborern
+              - tsoding
               - piratesoftware
-              - cohhcarnage
+              - tjdevries
+              - rwxrob
 
           - type: bookmarks
             groups:
