@@ -2,8 +2,8 @@ server:
   port: 8080
 
 theme:
-  background-color: 18 18 18
-  primary-color: 200 170 110
+  background-color: 0 0 8
+  primary-color: 40 60 55
   contrast-multiplier: 1.1
 
 pages:
