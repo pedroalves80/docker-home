@@ -1,2 +1,25 @@
 ---
-# No external widget providers configured
+# Top bar widgets
+- search:
+    provider: duckduckgo
+    target: _blank
+    focus: false
+
+- datetime:
+    text_size: xl
+    format:
+      dateStyle: long
+      timeStyle: short
+      hour12: false
+
+- openmeteo:
+    label: Santo Tirso
+    latitude: 41.343
+    longitude: -8.474
+    units: metric
+    cache: 5
+
+- resources:
+    cpu: true
+    memory: true
+    disk: /

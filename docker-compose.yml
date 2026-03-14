@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   traefik:
     image: traefik:v2.10
@@ -296,14 +294,15 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       - TZ=${TZ:-UTC}
-      - HOMEPAGE_ALLOWED_HOSTS=home.home.lan
+      - HOMEPAGE_ALLOWED_HOSTS=home.lan
       - HOMEPAGE_VAR_HOMEASSISTANT_KEY=${HOMEPAGE_VAR_HOMEASSISTANT_KEY}
       - HOMEPAGE_VAR_PORTAINER_KEY=${HOMEPAGE_VAR_PORTAINER_KEY}
       - HOMEPAGE_VAR_ADGUARD_USERNAME=${HOMEPAGE_VAR_ADGUARD_USERNAME}
       - HOMEPAGE_VAR_ADGUARD_PASSWORD=${HOMEPAGE_VAR_ADGUARD_PASSWORD}
+      - HOMEPAGE_VAR_GRAFANA_TOKEN=${HOMEPAGE_VAR_GRAFANA_TOKEN}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.homepage.rule=Host(`home.home.lan`)"
+      - "traefik.http.routers.homepage.rule=Host(`home.lan`)"
       - "traefik.http.services.homepage.loadbalancer.server.port=3000"
       - "traefik.http.routers.homepage.entrypoints=websecure"
       - "traefik.http.routers.homepage.tls=true"

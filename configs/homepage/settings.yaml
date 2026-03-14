@@ -1,22 +1,37 @@
 ---
-title: Raven-0 Home Server
-favicon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/raspberry-pi.png
+title: Raven-0
+favicon: https://raw.githubusercontent.com/walkxcode/dashboard-icons/main/png/homer.png
+
+# Theme configuration
 theme: dark
-color: slate
-headerStyle: boxed
+color: zinc
+background:
+  image: https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?w=1920
+  blur: sm
+  opacity: 50
+
+# Header styling
+headerStyle: clean
+cardBlur: md
+
+# Status indicators
+statusStyle: dot
+
+# Layout configuration - clean grid design
 layout:
-  Home Automation:
-    style: row
-    columns: 3
-  TeslaMate:
-    style: row
-    columns: 2
-  Monitoring:
+  Smart Home:
+    icon: mdi-home-automation
     style: row
     columns: 4
-  Management:
+  Vehicles:
+    icon: mdi-car-electric
     style: row
-    columns: 3
-  Infrastructure:
+    columns: 2
+  Observability:
+    icon: mdi-chart-line
+    style: row
+    columns: 4
+  System:
+    icon: mdi-server
     style: row
     columns: 3

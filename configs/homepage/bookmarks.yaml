@@ -1,18 +1,30 @@
 ---
-# Bookmarks for quick access
-- Documentation:
-    - Homepage Docs:
-        - icon: book.png
-          href: https://gethomepage.dev
-          description: Homepage documentation
-
-- Quick Links:
-    - Tailscale Admin:
-        - icon: tailscale.png
-          href: https://login.tailscale.com/admin
-          description: Manage VPN
-
+- Development:
     - GitHub:
         - icon: github.png
           href: https://github.com
-          description: GitHub
+    - Docker Hub:
+        - icon: docker.png
+          href: https://hub.docker.com
+    - Stack Overflow:
+        - icon: stackoverflow.png
+          href: https://stackoverflow.com
+
+- Infrastructure:
+    - Tailscale:
+        - icon: tailscale.png
+          href: https://login.tailscale.com/admin
+    - Cloudflare:
+        - icon: cloudflare.png
+          href: https://dash.cloudflare.com
+
+- Documentation:
+    - Homepage:
+        - icon: homepage.png
+          href: https://gethomepage.dev/latest/configs/
+    - Home Assistant:
+        - icon: home-assistant.png
+          href: https://www.home-assistant.io/docs/
+    - Traefik:
+        - icon: traefik.png
+          href: https://doc.traefik.io/traefik/
