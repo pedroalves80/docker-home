@@ -129,7 +129,7 @@ generate_certificates() {
     print_step "Generating self-signed certificates for *.home.lan..."
 
     # Generate certificate with SAN for wildcard domain
-    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    openssl req -x509 -nodes -days 3650 -newkey rsa:4096 \
         -keyout "$KEY_FILE" \
         -out "$CERT_FILE" \
         -subj "/CN=*.home.lan/O=Docker Home/C=US" \

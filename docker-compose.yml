@@ -22,6 +22,30 @@ services:
       - "traefik.http.services.traefik.loadbalancer.server.port=8080"
       - "traefik.http.routers.traefik.entrypoints=websecure"
       - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.middlewares=authelia@docker"
+
+  authelia:
+    image: authelia/authelia:latest
+    container_name: authelia
+    networks:
+      - proxy
+    restart: unless-stopped
+    volumes:
+      - ./configs/authelia:/config
+    environment:
+      - TZ=${TZ:-UTC}
+      - AUTHELIA_SESSION_SECRET=${AUTHELIA_SESSION_SECRET}
+      - AUTHELIA_STORAGE_ENCRYPTION_KEY=${AUTHELIA_STORAGE_ENCRYPTION_KEY}
+      - AUTHELIA_JWT_SECRET=${AUTHELIA_JWT_SECRET}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.authelia.rule=Host(`auth.home.lan`)"
+      - "traefik.http.services.authelia.loadbalancer.server.port=9091"
+      - "traefik.http.routers.authelia.entrypoints=websecure"
+      - "traefik.http.routers.authelia.tls=true"
+      - "traefik.http.middlewares.authelia.forwardauth.address=http://authelia:9091/api/authz/forward-auth"
+      - "traefik.http.middlewares.authelia.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.authelia.forwardauth.authResponseHeaders=Remote-User,Remote-Groups,Remote-Name,Remote-Email"
 
   adguard:
     image: adguard/adguardhome:latest
@@ -82,6 +106,7 @@ services:
       - "traefik.http.services.teslamate-model3.loadbalancer.server.port=4000"
       - "traefik.http.routers.teslamate-model3.entrypoints=websecure"
       - "traefik.http.routers.teslamate-model3.tls=true"
+      - "traefik.http.routers.teslamate-model3.middlewares=authelia@docker"
 
   # --- Model Y instance
   teslamate_modely_db:
@@ -119,6 +144,7 @@ services:
       - "traefik.http.services.teslamate-modely.loadbalancer.server.port=4000"
       - "traefik.http.routers.teslamate-modely.entrypoints=websecure"
       - "traefik.http.routers.teslamate-modely.tls=true"
+      - "traefik.http.routers.teslamate-modely.middlewares=authelia@docker"
 
   mosquitto:
     image: eclipse-mosquitto:2
@@ -210,6 +236,7 @@ services:
       - "traefik.http.services.prometheus.loadbalancer.server.port=9090"
       - "traefik.http.routers.prometheus.entrypoints=websecure"
       - "traefik.http.routers.prometheus.tls=true"
+      - "traefik.http.routers.prometheus.middlewares=authelia@docker"
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
@@ -227,6 +254,7 @@ services:
       - "traefik.http.services.cadvisor.loadbalancer.server.port=8080"
       - "traefik.http.routers.cadvisor.entrypoints=websecure"
       - "traefik.http.routers.cadvisor.tls=true"
+      - "traefik.http.routers.cadvisor.middlewares=authelia@docker"
 
   node-exporter:
     image: prom/node-exporter:latest
@@ -247,6 +275,7 @@ services:
       - "traefik.http.services.node-exporter.loadbalancer.server.port=9100"
       - "traefik.http.routers.node-exporter.entrypoints=websecure"
       - "traefik.http.routers.node-exporter.tls=true"
+      - "traefik.http.routers.node-exporter.middlewares=authelia@docker"
 
   uptime-kuma:
     image: louislam/uptime-kuma:1
@@ -282,6 +311,7 @@ services:
       - "traefik.http.services.portainer.loadbalancer.server.port=9000"
       - "traefik.http.routers.portainer.entrypoints=websecure"
       - "traefik.http.routers.portainer.tls=true"
+      - "traefik.http.routers.portainer.middlewares=authelia@docker"
 
   homepage:
     image: ghcr.io/gethomepage/homepage:latest
@@ -414,6 +444,59 @@ services:
       - "traefik.http.services.apprise.loadbalancer.server.port=8000"
       - "traefik.http.routers.apprise.entrypoints=websecure"
       - "traefik.http.routers.apprise.tls=true"
+      - "traefik.http.routers.apprise.middlewares=authelia@docker"
+
+  dozzle:
+    image: amir20/dozzle:latest
+    container_name: dozzle
+    networks:
+      - proxy
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=${TZ:-UTC}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dozzle.rule=Host(`dozzle.home.lan`)"
+      - "traefik.http.services.dozzle.loadbalancer.server.port=8080"
+      - "traefik.http.routers.dozzle.entrypoints=websecure"
+      - "traefik.http.routers.dozzle.tls=true"
+      - "traefik.http.routers.dozzle.middlewares=authelia@docker"
+
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n
+    networks:
+      - proxy
+    restart: unless-stopped
+    volumes:
+      - ./data/n8n:/home/node/.n8n
+    environment:
+      - TZ=${TZ:-UTC}
+      - N8N_HOST=n8n.home.lan
+      - N8N_PROTOCOL=https
+      - WEBHOOK_URL=https://n8n.home.lan/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.n8n.rule=Host(`n8n.home.lan`)"
+      - "traefik.http.services.n8n.loadbalancer.server.port=5678"
+      - "traefik.http.routers.n8n.entrypoints=websecure"
+      - "traefik.http.routers.n8n.tls=true"
+
+  diun:
+    image: crazymax/diun:latest
+    container_name: diun
+    networks:
+      - proxy
+    restart: unless-stopped
+    volumes:
+      - ./configs/diun/diun.yml:/diun.yml:ro
+      - ./data/diun:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=${TZ:-UTC}
+      - LOG_LEVEL=info
 
 networks:
   proxy:

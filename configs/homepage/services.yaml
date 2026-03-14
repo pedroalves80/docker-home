@@ -19,6 +19,13 @@
           username: {{HOMEPAGE_VAR_ADGUARD_USERNAME}}
           password: {{HOMEPAGE_VAR_ADGUARD_PASSWORD}}
 
+    - Authelia:
+        icon: authelia.png
+        href: https://auth.home.lan
+        description: SSO & 2FA
+        server: local
+        container: authelia
+
     - Vaultwarden:
         icon: vaultwarden.png
         href: https://vaultwarden.home.lan
@@ -84,6 +91,34 @@
         server: local
         container: cadvisor
 
+    - Node Exporter:
+        icon: prometheus.png
+        href: https://node-exporter.home.lan
+        description: System Metrics
+        server: local
+        container: node-exporter
+
+    - Apprise:
+        icon: apprise.png
+        href: https://apprise.home.lan
+        description: Notification Gateway
+        server: local
+        container: apprise
+
+    - Diun:
+        icon: diun.png
+        href: https://github.com/crazy-max/diun
+        description: Image Update Notifier
+        server: local
+        container: diun
+
+    - n8n:
+        icon: n8n.png
+        href: https://n8n.home.lan
+        description: Workflow Automation
+        server: local
+        container: n8n
+
 - System:
     - Portainer:
         icon: portainer.png
@@ -106,3 +141,10 @@
         widget:
           type: traefik
           url: http://traefik:8080
+
+    - Dozzle:
+        icon: dozzle.png
+        href: https://dozzle.home.lan
+        description: Container Logs
+        server: local
+        container: dozzle

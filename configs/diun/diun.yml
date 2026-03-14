@@ -1,0 +1,14 @@
+watch:
+  schedule: "0 8 * * *"  # Check daily at 8am
+  firstCheckNotif: false
+
+providers:
+  docker:
+    watchByDefault: true
+    watchStopped: false
+
+notif:
+  telegram:
+    token: "REDACTED_TOKEN"
+    chatIDs:
+      - 6752202857

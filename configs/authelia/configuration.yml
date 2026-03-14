@@ -1,0 +1,82 @@
+---
+theme: dark
+default_2fa_method: totp
+
+server:
+  address: 'tcp://0.0.0.0:9091'
+
+log:
+  level: info
+
+identity_validation:
+  reset_password:
+    jwt_secret: '${AUTHELIA_JWT_SECRET}'
+
+totp:
+  issuer: home.lan
+  period: 30
+  skew: 1
+
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+    password:
+      algorithm: argon2id
+      iterations: 3
+      memory: 65536
+      parallelism: 4
+      key_length: 32
+      salt_length: 16
+
+access_control:
+  default_policy: deny
+  rules:
+    # Bypass auth for these (they have their own)
+    - domain: vaultwarden.home.lan
+      policy: bypass
+    - domain: homeassistant.home.lan
+      policy: bypass
+    - domain: n8n.home.lan
+      policy: bypass
+    # One-factor for less sensitive services
+    - domain:
+        - home.lan
+        - grafana.home.lan
+        - uptime.home.lan
+        - dozzle.home.lan
+      policy: one_factor
+    # Two-factor for admin/sensitive services
+    - domain:
+        - traefik.home.lan
+        - portainer.home.lan
+        - adguard.home.lan
+        - prometheus.home.lan
+        - cadvisor.home.lan
+        - teslamate-model3.home.lan
+        - teslamate-modely.home.lan
+        - pricebuddy.home.lan
+        - apprise.home.lan
+      policy: two_factor
+
+session:
+  name: authelia_session
+  secret: '${AUTHELIA_SESSION_SECRET}'
+  cookies:
+    - domain: home.lan
+      authelia_url: https://auth.home.lan
+  expiration: 12h
+  inactivity: 2h
+
+regulation:
+  max_retries: 3
+  find_time: 2m
+  ban_time: 5m
+
+storage:
+  local:
+    path: /config/db.sqlite3
+  encryption_key: '${AUTHELIA_STORAGE_ENCRYPTION_KEY}'
+
+notifier:
+  filesystem:
+    filename: /config/notification.txt

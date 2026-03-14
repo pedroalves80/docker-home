@@ -21,6 +21,10 @@ A comprehensive Docker-based homelab stack featuring home automation, monitoring
 | **TeslaMate Model Y** | `https://teslamate-modely.home.lan` | Tesla Model Y tracking |
 | **PriceBuddy** | `https://pricebuddy.home.lan` | Price tracking & wishlist |
 | **Apprise** | `https://apprise.home.lan` | Notification gateway |
+| **Dozzle** | `https://dozzle.home.lan` | Real-time container logs |
+| **Authelia** | `https://auth.home.lan` | SSO & 2FA gateway |
+| **Diun** | N/A (background service) | Image update notifier |
+| **n8n** | `https://n8n.home.lan` | Workflow automation |
 
 ## Prerequisites
 
@@ -62,6 +66,8 @@ cp .env.example .env
 | `VAULTWARDEN_ADMIN_TOKEN` | Vaultwarden admin panel token |
 | `TS_AUTHKEY` | Tailscale auth key (from Tailscale admin console) |
 | `PRICEBUDDY_APP_KEY` | PriceBuddy Laravel app key |
+| `AUTHELIA_SESSION_SECRET` | Authelia session encryption key |
+| `AUTHELIA_STORAGE_ENCRYPTION_KEY` | Authelia storage encryption key |
 | `HOMEPAGE_VAR_*` | API keys for Homepage integrations |
 
 Generate secure values:
@@ -169,14 +175,32 @@ docker compose ps
 
 ## Backup
 
-**Important directories to backup:**
-- `./data/` - All service data
-- `./configs/` - Service configurations
-- `./.env` - Environment variables
+Automated backups run daily at 3am to a USB drive mounted at `/mnt/backups`.
 
-Example backup script:
+**What's backed up:**
+- `./data/` - All service data (Vaultwarden, TeslaMate, Home Assistant, etc.)
+
+**Backup features:**
+- Stops critical containers (Vaultwarden, TeslaMate, Home Assistant) for consistency
+- Uses rsync with hard links for space-efficient snapshots
+- Keeps 7 days of backups, auto-removes older ones
+
+**Manual backup:**
 ```bash
-tar -czvf backup-$(date +%Y%m%d).tar.gz data/ configs/ .env
+./backup.sh
+```
+
+**Check backup status:**
+```bash
+sudo ls -la /mnt/backups/
+sudo du -sh /mnt/backups/*
+```
+
+**Restore from backup:**
+```bash
+docker compose down
+sudo rsync -av /mnt/backups/backup-YYYY-MM-DD_HH-MM/ ~/docker-home/data/
+docker compose up -d
 ```
 
 ## Troubleshooting
