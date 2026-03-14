@@ -2,8 +2,10 @@ server:
   port: 8080
 
 theme:
-  background-color: 0 0 8
-  primary-color: 40 60 55
+  background-color: 225 14 15
+  primary-color: 43 50 70
+  positive-color: 150 80 55
+  negative-color: 0 80 55
   contrast-multiplier: 1.1
 
 pages:
@@ -11,59 +13,47 @@ pages:
     columns:
       - size: small
         widgets:
-          - type: clock
-            hour-format: "24h"
-            timezones:
-              - timezone: Europe/Lisbon
-                label: Santo Tirso
+          - type: calendar
 
           - type: weather
             location: Santo Tirso, Portugal
             units: metric
             hour-format: "24h"
 
-          - type: search
-            search-engine: duckduckgo
-            autofocus: true
+          - type: twitch-channels
+            channels:
+              - theprimeagen
+              - gaules
+              - zackrawrr
+              - piratesoftware
+              - cohhcarnage
 
           - type: bookmarks
             groups:
-              - title: Development
+              - title: Quick Links
                 links:
                   - title: GitHub
                     url: https://github.com
-                  - title: Docker Hub
-                    url: https://hub.docker.com
-                  - title: Stack Overflow
-                    url: https://stackoverflow.com
-
-              - title: Infrastructure
-                links:
                   - title: Tailscale
                     url: https://login.tailscale.com/admin
                   - title: Cloudflare
                     url: https://dash.cloudflare.com
 
-              - title: Documentation
-                links:
-                  - title: Glance
-                    url: https://github.com/glanceapp/glance
-                  - title: Home Assistant
-                    url: https://www.home-assistant.io/docs/
-                  - title: Traefik
-                    url: https://doc.traefik.io/traefik/
-
       - size: full
         widgets:
+          - type: search
+            search-engine: duckduckgo
+            autofocus: true
+
           - type: monitor
-            title: Services Status
+            title: Services
             cache: 1m
             allow-insecure: true
             sites:
               - title: Home Assistant
                 url: http://homeassistant:8123
                 icon: si:homeassistant
-              - title: AdGuard Home
+              - title: AdGuard
                 url: http://adguard:8080
                 icon: si:adguard
               - title: Grafana
@@ -81,75 +71,92 @@ pages:
               - title: Traefik
                 url: http://traefik:8080
                 icon: si:traefikproxy
+              - title: Authelia
+                url: http://authelia:9091
+                icon: si:authelia
+              - title: TeslaMate M3
+                url: http://teslamate_model3:4000
+                icon: si:tesla
+              - title: TeslaMate MY
+                url: http://teslamate_modely:4000
+                icon: si:tesla
+              - title: n8n
+                url: http://n8n:5678
+                icon: si:n8n
+              - title: PriceBuddy
+                url: http://pricebuddy:80
+                icon: si:shoppingbag
 
           - type: group
             widgets:
-              - type: bookmarks
-                title: Smart Home
-                groups:
-                  - links:
-                      - title: Home Assistant
-                        url: https://homeassistant.home.lan
-                        icon: si:homeassistant
-                      - title: AdGuard Home
-                        url: https://adguard.home.lan
-                        icon: si:adguard
-                      - title: Authelia
-                        url: https://auth.home.lan
-                        icon: si:authelia
-                      - title: Vaultwarden
-                        url: https://vaultwarden.home.lan
-                        icon: si:bitwarden
-                      - title: PriceBuddy
-                        url: https://pricebuddy.home.lan
-                        icon: si:tag
+              - type: hacker-news
+                limit: 10
+                collapse-after: 5
 
-              - type: bookmarks
-                title: Vehicles
-                groups:
-                  - links:
-                      - title: TeslaMate Model 3
-                        url: https://teslamate-model3.home.lan
-                        icon: si:tesla
-                      - title: TeslaMate Model Y
-                        url: https://teslamate-modely.home.lan
-                        icon: si:tesla
+              - type: lobsters
+                limit: 8
+                collapse-after: 4
 
-          - type: group
-            widgets:
-              - type: bookmarks
-                title: Observability
-                groups:
-                  - links:
-                      - title: Grafana
-                        url: https://grafana.home.lan
-                        icon: si:grafana
-                      - title: Prometheus
-                        url: https://prometheus.home.lan
-                        icon: si:prometheus
-                      - title: Uptime Kuma
-                        url: https://uptime.home.lan
-                        icon: si:uptimekuma
-                      - title: cAdvisor
-                        url: https://cadvisor.home.lan
-                        icon: si:google
-                      - title: Apprise
-                        url: https://apprise.home.lan
-                        icon: si:apprise
-                      - title: n8n
-                        url: https://n8n.home.lan
-                        icon: si:n8n
+          - type: rss
+            title: Tech News
+            limit: 8
+            collapse-after: 4
+            feeds:
+              - url: https://www.theverge.com/rss/index.xml
+              - url: https://arstechnica.com/feed/
+              - url: https://feeds.feedburner.com/TechCrunch/
 
-              - type: bookmarks
-                title: System
-                groups:
-                  - links:
-                      - title: Portainer
-                        url: https://portainer.home.lan
-                        icon: si:portainer
-                      - title: Traefik
-                        url: https://traefik.home.lan
-                        icon: si:traefikproxy
-                      - title: Dozzle
-                        url: https://dozzle.home.lan
-                        icon: si:docker
+      - size: small
+        widgets:
+          - type: clock
+            hour-format: "24h"
+            timezones:
+              - timezone: Europe/Lisbon
+                label: Santo Tirso
+
+          - type: repository
+            repository: pedroalves80/docker-home
+            pull-requests-limit: 3
+            issues-limit: 3
+
+          - type: bookmarks
+            groups:
+              - title: Smart Home
+                links:
+                  - title: Home Assistant
+                    url: https://homeassistant.home.lan
+                  - title: AdGuard
+                    url: https://adguard.home.lan
+                  - title: Authelia
+                    url: https://auth.home.lan
+
+              - title: Monitoring
+                links:
+                  - title: Grafana
+                    url: https://grafana.home.lan
+                  - title: Prometheus
+                    url: https://prometheus.home.lan
+                  - title: Uptime Kuma
+                    url: https://uptime.home.lan
+                  - title: Dozzle
+                    url: https://dozzle.home.lan
+
+              - title: System
+                links:
+                  - title: Portainer
+                    url: https://portainer.home.lan
+                  - title: Traefik
+                    url: https://traefik.home.lan
+                  - title: n8n
+                    url: https://n8n.home.lan
+
+              - title: Apps
+                links:
+                  - title: Vaultwarden
+                    url: https://vaultwarden.home.lan
+                  - title: PriceBuddy
+                    url: https://pricebuddy.home.lan
+                  - title: TeslaMate M3
+                    url: https://teslamate-model3.home.lan
+                  - title: TeslaMate MY
+                    url: https://teslamate-modely.home.lan
