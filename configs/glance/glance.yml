@@ -1,0 +1,156 @@
+server:
+  port: 8080
+
+theme:
+  background-color: 18 18 18
+  primary-color: 200 170 110
+  contrast-multiplier: 1.1
+
+pages:
+  - name: Home
+    columns:
+      - size: small
+        widgets:
+          - type: clock
+            hour-format: "24h"
+            timezones:
+              - timezone: Europe/Lisbon
+                label: Santo Tirso
+
+          - type: weather
+            location: Santo Tirso, Portugal
+            units: metric
+            hour-format: "24h"
+
+          - type: search
+            search-engine: duckduckgo
+            autofocus: true
+
+          - type: bookmarks
+            groups:
+              - title: Development
+                links:
+                  - title: GitHub
+                    url: https://github.com
+                  - title: Docker Hub
+                    url: https://hub.docker.com
+                  - title: Stack Overflow
+                    url: https://stackoverflow.com
+
+              - title: Infrastructure
+                links:
+                  - title: Tailscale
+                    url: https://login.tailscale.com/admin
+                  - title: Cloudflare
+                    url: https://dash.cloudflare.com
+
+              - title: Documentation
+                links:
+                  - title: Glance
+                    url: https://github.com/glanceapp/glance
+                  - title: Home Assistant
+                    url: https://www.home-assistant.io/docs/
+                  - title: Traefik
+                    url: https://doc.traefik.io/traefik/
+
+      - size: full
+        widgets:
+          - type: monitor
+            title: Services Status
+            cache: 1m
+            sites:
+              - title: Home Assistant
+                url: https://homeassistant.home.lan
+                icon: si:homeassistant
+              - title: AdGuard Home
+                url: https://adguard.home.lan
+                icon: si:adguard
+              - title: Grafana
+                url: https://grafana.home.lan
+                icon: si:grafana
+              - title: Uptime Kuma
+                url: https://uptime.home.lan
+                icon: si:uptimekuma
+              - title: Vaultwarden
+                url: https://vaultwarden.home.lan
+                icon: si:bitwarden
+              - title: Portainer
+                url: https://portainer.home.lan
+                icon: si:portainer
+              - title: Traefik
+                url: https://traefik.home.lan
+                icon: si:traefikproxy
+
+          - type: group
+            widgets:
+              - type: links
+                title: Smart Home
+                links:
+                  - title: Home Assistant
+                    url: https://homeassistant.home.lan
+                    icon: si:homeassistant
+                  - title: AdGuard Home
+                    url: https://adguard.home.lan
+                    icon: si:adguard
+                  - title: Authelia
+                    url: https://auth.home.lan
+                    icon: si:authelia
+                  - title: Vaultwarden
+                    url: https://vaultwarden.home.lan
+                    icon: si:bitwarden
+                  - title: PriceBuddy
+                    url: https://pricebuddy.home.lan
+                    icon: si:shoppingbag
+
+              - type: links
+                title: Vehicles
+                links:
+                  - title: TeslaMate Model 3
+                    url: https://teslamate-model3.home.lan
+                    icon: si:tesla
+                  - title: TeslaMate Model Y
+                    url: https://teslamate-modely.home.lan
+                    icon: si:tesla
+
+          - type: group
+            widgets:
+              - type: links
+                title: Observability
+                links:
+                  - title: Grafana
+                    url: https://grafana.home.lan
+                    icon: si:grafana
+                  - title: Prometheus
+                    url: https://prometheus.home.lan
+                    icon: si:prometheus
+                  - title: Uptime Kuma
+                    url: https://uptime.home.lan
+                    icon: si:uptimekuma
+                  - title: cAdvisor
+                    url: https://cadvisor.home.lan
+                    icon: si:google
+                  - title: Node Exporter
+                    url: https://node-exporter.home.lan
+                    icon: si:prometheus
+                  - title: Apprise
+                    url: https://apprise.home.lan
+                    icon: si:apprise
+                  - title: n8n
+                    url: https://n8n.home.lan
+                    icon: si:n8n
+                  - title: Dozzle
+                    url: https://dozzle.home.lan
+                    icon: si:docker
+
+              - type: links
+                title: System
+                links:
+                  - title: Portainer
+                    url: https://portainer.home.lan
+                    icon: si:portainer
+                  - title: Traefik
+                    url: https://traefik.home.lan
+                    icon: si:traefikproxy
+                  - title: Dozzle
+                    url: https://dozzle.home.lan
+                    icon: si:docker

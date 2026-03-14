@@ -313,29 +313,22 @@ services:
       - "traefik.http.routers.portainer.tls=true"
       - "traefik.http.routers.portainer.middlewares=authelia@docker"
 
-  homepage:
-    image: ghcr.io/gethomepage/homepage:latest
-    container_name: homepage
+  glance:
+    image: glanceapp/glance:latest
+    container_name: glance
     networks:
       - proxy
     restart: unless-stopped
     volumes:
-      - ./configs/homepage:/app/config
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./configs/glance/glance.yml:/app/glance.yml:ro
     environment:
       - TZ=${TZ:-UTC}
-      - HOMEPAGE_ALLOWED_HOSTS=home.lan
-      - HOMEPAGE_VAR_HOMEASSISTANT_KEY=${HOMEPAGE_VAR_HOMEASSISTANT_KEY}
-      - HOMEPAGE_VAR_PORTAINER_KEY=${HOMEPAGE_VAR_PORTAINER_KEY}
-      - HOMEPAGE_VAR_ADGUARD_USERNAME=${HOMEPAGE_VAR_ADGUARD_USERNAME}
-      - HOMEPAGE_VAR_ADGUARD_PASSWORD=${HOMEPAGE_VAR_ADGUARD_PASSWORD}
-      - HOMEPAGE_VAR_GRAFANA_TOKEN=${HOMEPAGE_VAR_GRAFANA_TOKEN}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.homepage.rule=Host(`home.lan`)"
-      - "traefik.http.services.homepage.loadbalancer.server.port=3000"
-      - "traefik.http.routers.homepage.entrypoints=websecure"
-      - "traefik.http.routers.homepage.tls=true"
+      - "traefik.http.routers.glance.rule=Host(`home.lan`)"
+      - "traefik.http.services.glance.loadbalancer.server.port=8080"
+      - "traefik.http.routers.glance.entrypoints=websecure"
+      - "traefik.http.routers.glance.tls=true"
 
   tailscale:
     image: tailscale/tailscale:latest
