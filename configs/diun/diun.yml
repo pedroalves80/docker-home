@@ -11,4 +11,4 @@ notif:
   telegram:
     token: "{{ .Env.DIUN_TELEGRAM_TOKEN }}"
     chatIDs:
-      - {{ .Env.DIUN_TELEGRAM_CHAT_ID }}
+      - "{{ .Env.DIUN_TELEGRAM_CHAT_ID }}"
