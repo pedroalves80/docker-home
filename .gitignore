@@ -2,4 +2,6 @@
 data/
 configs/traefik/cert.pem
 configs/traefik/key.pem
+configs/authelia/users_database.yml
+.DS_Store
 
