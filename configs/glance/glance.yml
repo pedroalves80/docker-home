@@ -165,40 +165,40 @@ pages:
             allow-insecure: true
             sites:
               - title: Home Assistant
-                url: http://homeassistant:8123
+                url: https://homeassistant.home.lan
                 icon: si:homeassistant
               - title: AdGuard
-                url: http://adguard:8080
+                url: https://adguard.home.lan
                 icon: si:adguard
               - title: Grafana
-                url: http://grafana:3000
+                url: https://grafana.home.lan
                 icon: si:grafana
               - title: Uptime Kuma
-                url: http://uptime-kuma:3001
+                url: https://uptime.home.lan
                 icon: si:uptimekuma
               - title: Vaultwarden
-                url: http://vaultwarden:80
+                url: https://vaultwarden.home.lan
                 icon: si:bitwarden
               - title: Portainer
-                url: http://portainer:9000
+                url: https://portainer.home.lan
                 icon: si:portainer
               - title: Traefik
-                url: http://traefik:8080
+                url: https://traefik.home.lan
                 icon: si:traefikproxy
               - title: Authelia
-                url: http://authelia:9091
+                url: https://auth.home.lan
                 icon: si:authelia
               - title: TeslaMate M3
-                url: http://teslamate_model3:4000
+                url: https://teslamate-model3.home.lan
                 icon: si:tesla
               - title: TeslaMate MY
-                url: http://teslamate_modely:4000
+                url: https://teslamate-modely.home.lan
                 icon: si:tesla
               - title: n8n
-                url: http://n8n:5678
+                url: https://n8n.home.lan
                 icon: si:n8n
               - title: PriceBuddy
-                url: http://pricebuddy:80
+                url: https://pricebuddy.home.lan
 
           - type: rss
             title: Self-Hosted News
