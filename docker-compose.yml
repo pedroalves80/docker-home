@@ -13,6 +13,7 @@ services:
       - "8080:8080"
     volumes:
       - ./configs/traefik/traefik.yml:/traefik/traefik.yml:ro
+      - ./configs/traefik/dynamic.yml:/traefik/dynamic.yml:ro
       - ./configs/traefik/cert.pem:/cert.pem
       - ./configs/traefik/key.pem:/key.pem
       - /var/run/docker.sock:/var/run/docker.sock:ro

@@ -13,17 +13,10 @@ entryPoints:
 providers:
   docker:
     exposedByDefault: false
-    network: proxy_network 
-
-tls:
-  stores:
-    default:
-      defaultCertificate:
-        certFile: "/cert.pem"
-        keyFile: "/key.pem"
-  certificates:
-    - certFile: "/cert.pem"
-      keyFile: "/key.pem"
+    network: proxy_network
+  file:
+    filename: "/traefik/dynamic.yml"
+    watch: true
 
 api:
   dashboard: true
