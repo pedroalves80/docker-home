@@ -162,43 +162,54 @@ pages:
           - type: monitor
             title: Services
             cache: 1m
-            allow-insecure: true
             sites:
               - title: Home Assistant
                 url: https://homeassistant.home.lan
+                check-url: http://homeassistant:8123
                 icon: si:homeassistant
               - title: AdGuard
                 url: https://adguard.home.lan
+                check-url: http://adguard:8080
                 icon: si:adguard
               - title: Grafana
                 url: https://grafana.home.lan
+                check-url: http://grafana:3000
                 icon: si:grafana
               - title: Uptime Kuma
                 url: https://uptime.home.lan
+                check-url: http://uptime-kuma:3001
                 icon: si:uptimekuma
               - title: Vaultwarden
                 url: https://vaultwarden.home.lan
+                check-url: http://vaultwarden:80
                 icon: si:bitwarden
               - title: Portainer
                 url: https://portainer.home.lan
+                check-url: http://portainer:9000
                 icon: si:portainer
               - title: Traefik
                 url: https://traefik.home.lan
+                check-url: http://traefik:8080
                 icon: si:traefikproxy
               - title: Authelia
                 url: https://auth.home.lan
+                check-url: http://authelia:9091
                 icon: si:authelia
               - title: TeslaMate M3
                 url: https://teslamate-model3.home.lan
+                check-url: http://teslamate_model3:4000
                 icon: si:tesla
               - title: TeslaMate MY
                 url: https://teslamate-modely.home.lan
+                check-url: http://teslamate_modely:4000
                 icon: si:tesla
               - title: n8n
                 url: https://n8n.home.lan
+                check-url: http://n8n:5678
                 icon: si:n8n
               - title: PriceBuddy
                 url: https://pricebuddy.home.lan
+                check-url: http://pricebuddy:3000
 
           - type: rss
             title: Self-Hosted News
