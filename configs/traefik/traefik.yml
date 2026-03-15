@@ -16,6 +16,11 @@ providers:
     network: proxy_network 
 
 tls:
+  stores:
+    default:
+      defaultCertificate:
+        certFile: "/cert.pem"
+        keyFile: "/key.pem"
   certificates:
     - certFile: "/cert.pem"
       keyFile: "/key.pem"
