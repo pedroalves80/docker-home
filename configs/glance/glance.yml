@@ -209,7 +209,7 @@ pages:
                 icon: si:n8n
               - title: PriceBuddy
                 url: https://pricebuddy.home.lan
-                check-url: http://pricebuddy:3000
+                check-url: http://pricebuddy:80
 
           - type: rss
             title: Self-Hosted News
