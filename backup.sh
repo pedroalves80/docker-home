@@ -1,6 +1,9 @@
 #!/bin/bash
 # Docker Home Backup Script
 
+# Set PATH for cron environment
+export PATH="/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin"
+
 BACKUP_DIR="/mnt/backups"
 SOURCE_DIR="$HOME/docker-home"
 DATE=$(date +%Y-%m-%d_%H-%M)
