@@ -76,6 +76,7 @@ create_directories() {
         "data/pricebuddy/mysql"
         "data/pricebuddy/storage"
         "data/prometheus"
+        "data/report-state"
         "data/tailscale"
         "data/traefik"
         "data/uptime-kuma"

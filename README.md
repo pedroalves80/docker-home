@@ -86,7 +86,8 @@ echo "base64:$(openssl rand -base64 32)"
 
 Add DNS entries pointing to your Docker host. If using AdGuard Home as your DNS:
 
-1. Access AdGuard at `http://<server-ip>:3001`
+1. Access AdGuard at `https://adguard.home.lan`
+   - If AdGuard is not serving DNS yet, temporarily add `adguard.home.lan` to your client `/etc/hosts` file pointing at the server IP.
 2. Go to **Filters** > **DNS rewrites**
 3. Add: `*.home.lan` -> `<server-ip>`
 
@@ -179,6 +180,12 @@ Automated backups run daily at 3am to a USB drive mounted at `/mnt/backups`.
 
 **What's backed up:**
 - `./data/` - All service data (Vaultwarden, TeslaMate, Home Assistant, etc.)
+- Recovery config under `_repo/` inside each backup:
+  - `.env`
+  - `docker-compose.yml`
+  - `backup.sh` and `backup-status.sh`
+  - `setup.sh`
+  - `configs/` including Traefik certificates and Authelia users
 
 **Backup features:**
 - Stops critical containers (Vaultwarden, TeslaMate, Home Assistant) for consistency
@@ -194,20 +201,40 @@ Automated backups run daily at 3am to a USB drive mounted at `/mnt/backups`.
 ```bash
 sudo ls -la /mnt/backups/
 sudo du -sh /mnt/backups/*
+./backup-status.sh --summary
+./backup-status.sh --json
+./backup-status.sh --prometheus
 ```
+
+For n8n, use this SSH command to return only the latest dated snapshot:
+```bash
+/home/yikeszs/docker-home/backup-status.sh --name
+```
+
+**Weekly storage report:**
+```bash
+./weekly-storage-report.sh --telegram-html
+```
+
+Use this from an n8n weekly SSH node and send `stdout` to Telegram with parse mode `HTML`. The script reports filesystem usage, backup size, Docker disk usage, largest service data directories, database/storage hotspots, and container restart counts. It stores its growth baseline in `data/report-state/storage-snapshot.tsv`, so the first run establishes the baseline and later runs show deltas.
 
 **Restore from backup:**
 ```bash
 docker compose down
-sudo rsync -av /mnt/backups/backup-YYYY-MM-DD_HH-MM/ ~/docker-home/data/
+sudo rsync -av --exclude '_repo/' /mnt/backups/backup-YYYY-MM-DD_HH-MM/ ~/docker-home/data/
 docker compose up -d
+```
+
+To restore repo config and secrets as well:
+```bash
+sudo rsync -av /mnt/backups/backup-YYYY-MM-DD_HH-MM/_repo/ ~/docker-home/
 ```
 
 ## Troubleshooting
 
 ### Services not accessible
 1. Verify DNS resolution: `nslookup home.home.lan`
-2. Check Traefik dashboard at `:8080`
+2. Check Traefik dashboard at `https://traefik.home.lan`
 3. Verify container status: `docker compose ps`
 
 ### Certificate warnings
