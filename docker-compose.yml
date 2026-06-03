@@ -416,6 +416,29 @@ services:
       - "traefik.http.middlewares.pricebuddy-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
       - "traefik.http.routers.pricebuddy.middlewares=pricebuddy-headers"
 
+  wishlist:
+    image: ghcr.io/cmintey/wishlist:v0.64.1
+    container_name: wishlist
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - ./data/wishlist/uploads:/usr/src/app/uploads
+      - ./data/wishlist/data:/usr/src/app/data
+    environment:
+      - ORIGIN=https://wishlist.home.lan
+      - TOKEN_TIME=${WISHLIST_TOKEN_TIME:-72}
+      - DEFAULT_CURRENCY=${WISHLIST_DEFAULT_CURRENCY:-EUR}
+      - MAX_IMAGE_SIZE=${WISHLIST_MAX_IMAGE_SIZE:-10000000}
+      - LOG_LEVEL=${WISHLIST_LOG_LEVEL:-info}
+      - TZ=${TZ:-UTC}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.wishlist.rule=Host(`wishlist.home.lan`)"
+      - "traefik.http.services.wishlist.loadbalancer.server.port=3280"
+      - "traefik.http.routers.wishlist.entrypoints=websecure"
+      - "traefik.http.routers.wishlist.tls=true"
+
   apprise:
     image: caronc/apprise:latest
     container_name: apprise
@@ -502,4 +525,3 @@ networks:
 volumes:
   mosquitto-conf:
   mosquitto-data:
-

@@ -81,6 +81,8 @@ create_directories() {
         "data/traefik"
         "data/uptime-kuma"
         "data/vaultwarden"
+        "data/wishlist/data"
+        "data/wishlist/uploads"
         "data/apprise/config"
         "data/apprise/attach"
         "configs/traefik"
@@ -284,6 +286,10 @@ EOF
         icon: mdi-cash-multiple
         href: https://pricebuddy.home.lan
         description: Price Tracking
+    - Wishlist:
+        icon: mdi-gift-outline
+        href: https://wishlist.home.lan
+        description: Buy Later List
 EOF
         print_success "Created homepage services.yaml"
     fi

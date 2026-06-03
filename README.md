@@ -20,6 +20,7 @@ A comprehensive Docker-based homelab stack featuring home automation, monitoring
 | **TeslaMate Model 3** | `https://teslamate-model3.home.lan` | Tesla Model 3 tracking |
 | **TeslaMate Model Y** | `https://teslamate-modely.home.lan` | Tesla Model Y tracking |
 | **PriceBuddy** | `https://pricebuddy.home.lan` | Price tracking & wishlist |
+| **Wishlist** | `https://wishlist.home.lan` | Buy-later wishlist |
 | **Apprise** | `https://apprise.home.lan` | Notification gateway |
 | **Dozzle** | `https://dozzle.home.lan` | Real-time container logs |
 | **Authelia** | `https://auth.home.lan` | SSO & 2FA gateway |
@@ -149,7 +150,8 @@ data/
 ├── prometheus/       # Prometheus metrics data
 ├── tailscale/        # Tailscale state
 ├── uptime-kuma/      # Uptime Kuma data
-└── vaultwarden/      # Vaultwarden data & attachments
+├── vaultwarden/      # Vaultwarden data & attachments
+└── wishlist/         # Wishlist SQLite data & uploads
 ```
 
 ## Useful Commands
@@ -191,7 +193,7 @@ Automated backups run daily at 3am to a USB drive mounted at `/mnt/backups`.
   - `teslamate_modely.sql.gz`
 
 **Backup features:**
-- Briefly stops SQLite-backed containers (Vaultwarden, Home Assistant) only while their own data directories are copied
+- Briefly stops SQLite-backed containers (Vaultwarden, Home Assistant, Wishlist) only while their own data directories are copied
 - Leaves TeslaMate running and uses PostgreSQL dumps, so active charging sessions are not split by the 3am backup
 - Excludes live TeslaMate PostgreSQL data directories from snapshots; restore TeslaMate from `_db_dumps/`
 - Uses rsync with hard links for space-efficient snapshots

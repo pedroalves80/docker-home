@@ -40,6 +40,13 @@
         server: local
         container: pricebuddy
 
+    - Wishlist:
+        icon: mdi-gift-outline
+        href: https://wishlist.home.lan
+        description: Buy Later List
+        server: local
+        container: wishlist
+
 - Vehicles:
     - Model 3:
         icon: si-tesla

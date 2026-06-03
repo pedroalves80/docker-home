@@ -217,6 +217,7 @@ n8n SQLite|$DATA_DIR/n8n/database.sqlite
 Uptime Kuma DB|$DATA_DIR/uptime-kuma/kuma.db
 Grafana DB|$DATA_DIR/grafana/grafana.db
 Diun DB|$DATA_DIR/diun/diun.db
+Wishlist SQLite|$DATA_DIR/wishlist/data/prod.db
 PriceBuddy MySQL|$DATA_DIR/pricebuddy/mysql
 TeslaMate Model 3 Postgres|$DATA_DIR/model3/postgres
 TeslaMate Model Y Postgres|$DATA_DIR/modely/postgres

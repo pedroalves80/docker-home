@@ -152,6 +152,8 @@ pages:
                     url: https://vaultwarden.home.lan
                   - title: PriceBuddy
                     url: https://pricebuddy.home.lan
+                  - title: Wishlist
+                    url: https://wishlist.home.lan
                   - title: TeslaMate M3
                     url: https://teslamate-model3.home.lan
                   - title: TeslaMate MY
@@ -210,6 +212,9 @@ pages:
               - title: PriceBuddy
                 url: https://pricebuddy.home.lan
                 check-url: http://pricebuddy:80
+              - title: Wishlist
+                url: https://wishlist.home.lan
+                check-url: http://wishlist:3280
 
           - type: rss
             title: Self-Hosted News
@@ -230,3 +235,4 @@ pages:
               - glanceapp/glance
               - home-assistant/core
               - dani-garcia/vaultwarden
+              - cmintey/wishlist

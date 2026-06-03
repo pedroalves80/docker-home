@@ -18,6 +18,7 @@ CONTAINERS_STOPPED=0
 CRITICAL_CONTAINERS=(
     "vaultwarden"
     "homeassistant"
+    "wishlist"
 )
 
 POSTGRES_DUMPS=(
@@ -33,6 +34,7 @@ LIVE_POSTGRES_BACKUP_DIRS=(
 STOPPED_DATA_DIRS=(
     "homeassistant"
     "vaultwarden"
+    "wishlist"
 )
 
 CONFIG_FILES=(
@@ -116,6 +118,7 @@ sudo rsync -av --delete \
     --exclude "_db_dumps/" \
     --exclude "homeassistant/" \
     --exclude "vaultwarden/" \
+    --exclude "wishlist/" \
     --exclude "model3/postgres/" \
     --exclude "modely/postgres/" \
     --exclude "*/logs/*" \
