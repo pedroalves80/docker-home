@@ -179,16 +179,21 @@ docker compose ps
 Automated backups run daily at 3am to a USB drive mounted at `/mnt/backups`.
 
 **What's backed up:**
-- `./data/` - All service data (Vaultwarden, TeslaMate, Home Assistant, etc.)
+- `./data/` - Service data, excluding live TeslaMate PostgreSQL directories
 - Recovery config under `_repo/` inside each backup:
   - `.env`
   - `docker-compose.yml`
   - `backup.sh` and `backup-status.sh`
   - `setup.sh`
   - `configs/` including Traefik certificates and Authelia users
+- TeslaMate PostgreSQL dumps under `_db_dumps/`:
+  - `teslamate_model3.sql.gz`
+  - `teslamate_modely.sql.gz`
 
 **Backup features:**
-- Stops critical containers (Vaultwarden, TeslaMate, Home Assistant) for consistency
+- Stops critical file-backed containers (Vaultwarden, Home Assistant) for consistency
+- Leaves TeslaMate running and uses PostgreSQL dumps, so active charging sessions are not split by the 3am backup
+- Excludes live TeslaMate PostgreSQL data directories from snapshots; restore TeslaMate from `_db_dumps/`
 - Uses rsync with hard links for space-efficient snapshots
 - Keeps 7 days of backups, auto-removes older ones
 
@@ -218,6 +223,13 @@ For n8n, use this SSH command to return only the latest dated snapshot:
 
 Use this from an n8n weekly SSH node and send `stdout` to Telegram with parse mode `HTML`. The script reports filesystem usage, backup size, Docker disk usage, largest service data directories, database/storage hotspots, and container restart counts. It stores its growth baseline in `data/report-state/storage-snapshot.tsv`, so the first run establishes the baseline and later runs show deltas.
 
+**TeslaMate charge health check:**
+```bash
+./teslamate-charge-health.sh --json
+```
+
+Use this from an n8n SSH node to catch charge sessions split around the 3am backup window, or stale open charging processes. Alert when the returned top-level `status` is not `ok`.
+
 **Restore from backup:**
 ```bash
 docker compose down
@@ -229,6 +241,8 @@ To restore repo config and secrets as well:
 ```bash
 sudo rsync -av /mnt/backups/backup-YYYY-MM-DD_HH-MM/_repo/ ~/docker-home/
 ```
+
+TeslaMate database dumps are stored in `_db_dumps/` inside each backup snapshot. Use those dumps for TeslaMate restores instead of relying on a live rsync copy of the PostgreSQL data directory.
 
 ## Troubleshooting
 
