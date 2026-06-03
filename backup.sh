@@ -30,6 +30,11 @@ LIVE_POSTGRES_BACKUP_DIRS=(
     "modely/postgres"
 )
 
+STOPPED_DATA_DIRS=(
+    "homeassistant"
+    "vaultwarden"
+)
+
 CONFIG_FILES=(
     ".env"
     ".env.example"
@@ -84,6 +89,15 @@ remove_live_postgres_backups() {
     done
 }
 
+sync_stopped_data_dirs() {
+    local data_path=""
+
+    for data_path in "${STOPPED_DATA_DIRS[@]}"; do
+        sudo mkdir -p "$BACKUP_DIR/latest/$data_path"
+        sudo rsync -av --delete "$SOURCE_DIR/data/$data_path/" "$BACKUP_DIR/latest/$data_path/"
+    done
+}
+
 trap restart_containers EXIT
 
 # Check if backup drive is mounted
@@ -92,16 +106,16 @@ if ! mountpoint -q "$BACKUP_DIR"; then
     exit 1
 fi
 
-# Stop containers that need consistent backups
 cd "$SOURCE_DIR"
-docker compose stop "${CRITICAL_CONTAINERS[@]}"
-CONTAINERS_STOPPED=1
 
-# Create backup with sudo
 echo "Starting backup: $DATE"
+
+# Copy data that can be backed up while services continue running.
 sudo rsync -av --delete \
     --exclude "_repo/" \
     --exclude "_db_dumps/" \
+    --exclude "homeassistant/" \
+    --exclude "vaultwarden/" \
     --exclude "model3/postgres/" \
     --exclude "modely/postgres/" \
     --exclude "*/logs/*" \
@@ -110,6 +124,13 @@ sudo rsync -av --delete \
 
 # Excludes are protected from --delete, so remove old live PostgreSQL copies.
 remove_live_postgres_backups
+
+# Stop SQLite-backed services only long enough to copy their own data dirs.
+docker compose stop "${CRITICAL_CONTAINERS[@]}"
+CONTAINERS_STOPPED=1
+sync_stopped_data_dirs
+docker compose start "${CRITICAL_CONTAINERS[@]}"
+CONTAINERS_STOPPED=0
 
 # Keep consistent database exports for services backed by live PostgreSQL.
 sudo mkdir -p "$DB_DUMP_DIR"
@@ -129,10 +150,6 @@ done
 # Copy to dated snapshot
 sudo cp -al "$BACKUP_DIR/latest" "$SNAPSHOT_DIR"
 sudo touch "$SNAPSHOT_DIR"
-
-# Restart containers
-docker compose start "${CRITICAL_CONTAINERS[@]}"
-CONTAINERS_STOPPED=0
 
 # Remove old backups
 sudo find "$BACKUP_DIR" -maxdepth 1 -name "backup-*" -type d -mtime +$KEEP_DAYS -exec rm -rf {} \;

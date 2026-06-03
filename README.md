@@ -191,7 +191,7 @@ Automated backups run daily at 3am to a USB drive mounted at `/mnt/backups`.
   - `teslamate_modely.sql.gz`
 
 **Backup features:**
-- Stops critical file-backed containers (Vaultwarden, Home Assistant) for consistency
+- Briefly stops SQLite-backed containers (Vaultwarden, Home Assistant) only while their own data directories are copied
 - Leaves TeslaMate running and uses PostgreSQL dumps, so active charging sessions are not split by the 3am backup
 - Excludes live TeslaMate PostgreSQL data directories from snapshots; restore TeslaMate from `_db_dumps/`
 - Uses rsync with hard links for space-efficient snapshots
