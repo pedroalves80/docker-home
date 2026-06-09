@@ -158,6 +158,42 @@ services:
       - mosquitto-conf:/mosquitto/config
       - mosquitto-data:/mosquitto/data
 
+  deye-mqtt:
+    image: ghcr.io/kbialek/deye-inverter-mqtt:2026.06.1
+    container_name: deye-mqtt
+    volumes:
+      - ./plugins:/opt/deye_inverter_mqtt/plugins
+    restart: unless-stopped
+    networks:
+      - proxy
+    depends_on:
+      - mosquitto
+    environment:
+      - LOG_LEVEL=${DEYE_MQTT_LOG_LEVEL:-INFO}
+      - DEYE_LOGGER_IP_ADDRESS=${DEYE_LOGGER_IP_ADDRESS:-10.10.99.229}
+      - DEYE_LOGGER_SERIAL_NUMBER=${DEYE_LOGGER_SERIAL_NUMBER:-3583619085}
+      - DEYE_LOGGER_PROTOCOL=${DEYE_LOGGER_PROTOCOL:-tcp}
+      - DEYE_LOGGER_PORT=${DEYE_LOGGER_PORT:-8899}
+      - DEYE_METRIC_GROUPS=${DEYE_METRIC_GROUPS:-deye_sg04lp3,deye_sg04lp3_battery,deye_sg04lp3_ups,deye_sg04lp3_generator,deye_sg04lp3_settings,deye_sg04lp3_timeofuse}
+      - DEYE_DATA_READ_INTERVAL=${DEYE_DATA_READ_INTERVAL:-30}
+      - DEYE_FEATURE_MQTT_PUBLISHER=true
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=1883
+      - MQTT_TOPIC_PREFIX=${DEYE_MQTT_TOPIC_PREFIX:-deye}
+      - DEYE_FEATURE_TIME_OF_USE=true
+      - DEYE_FEATURE_ACTIVE_POWER_REGULATION=false
+      - DEYE_FEATURE_SET_TIME=false
+      - DEYE_FEATURE_SOLAR_SELL=false
+      - DEYE_FEATURE_SOLAR_SELL_MAX_POWER=false
+      - DEYE_FEATURE_WORKMODE=true
+      - DEYE_FEATURE_BATTERY_SETTINGS=false
+      - PLUGINS_DIR=plugins
+      - PLUGINS_ENABLED=deye_plugin_ha_discovery
+      - DEYE_HA_PLUGIN_HA_MQTT_PREFIX=homeassistant
+      - DEYE_HA_PLUGIN_INVERTER_MANUFACTURER=Deye
+      - DEYE_HA_PLUGIN_INVERTER_MODEL=SG04LP3
+      - DEYE_HA_PLUGIN_EXPIRE_AFTER=600
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -177,7 +213,7 @@ services:
       - "traefik.http.routers.grafana.tls=true"
 
   homeassistant:
-    image: ghcr.io/home-assistant/home-assistant:stable
+    image: ghcr.io/home-assistant/home-assistant:2026.3.1
     container_name: homeassistant
     restart: unless-stopped
     ports:
@@ -228,6 +264,10 @@ services:
     networks:
       - proxy
     restart: unless-stopped
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=90d"
     volumes:
       - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
       - ./data/prometheus:/prometheus
@@ -439,6 +479,88 @@ services:
       - "traefik.http.routers.wishlist.entrypoints=websecure"
       - "traefik.http.routers.wishlist.tls=true"
 
+  paperless-db:
+    image: postgres:16
+    container_name: paperless-db
+    restart: unless-stopped
+    networks:
+      - proxy
+    environment:
+      POSTGRES_DB: ${PAPERLESS_DB_NAME:-paperless}
+      POSTGRES_USER: ${PAPERLESS_DB_USER:-paperless}
+      POSTGRES_PASSWORD: ${PAPERLESS_DB_PASS:-paperlesspass}
+    volumes:
+      - ./data/paperless/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${PAPERLESS_DB_USER:-paperless}", "-d", "${PAPERLESS_DB_NAME:-paperless}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 1m
+
+  paperless-broker:
+    image: redis:7-alpine
+    container_name: paperless-broker
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - ./data/paperless/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:2.20.15
+    container_name: paperless
+    restart: unless-stopped
+    networks:
+      - proxy
+    depends_on:
+      paperless-db:
+        condition: service_healthy
+      paperless-broker:
+        condition: service_healthy
+    volumes:
+      - ./data/paperless/data:/usr/src/paperless/data
+      - ./data/paperless/media:/usr/src/paperless/media
+      - ./data/paperless/export:/usr/src/paperless/export
+      - ./data/paperless/consume:/usr/src/paperless/consume
+    environment:
+      - PAPERLESS_REDIS=redis://paperless-broker:6379
+      - PAPERLESS_DBHOST=paperless-db
+      - PAPERLESS_DBNAME=${PAPERLESS_DB_NAME:-paperless}
+      - PAPERLESS_DBUSER=${PAPERLESS_DB_USER:-paperless}
+      - PAPERLESS_DBPASS=${PAPERLESS_DB_PASS:-paperlesspass}
+      - PAPERLESS_SECRET_KEY=${PAPERLESS_SECRET_KEY}
+      - PAPERLESS_URL=https://paperless.home.lan
+      - PAPERLESS_ALLOWED_HOSTS=paperless.home.lan,paperless,paperless:8000,localhost
+      - PAPERLESS_CSRF_TRUSTED_ORIGINS=https://paperless.home.lan
+      - PAPERLESS_USE_X_FORWARD_HOST=true
+      - PAPERLESS_PROXY_SSL_HEADER=["HTTP_X_FORWARDED_PROTO","https"]
+      - PAPERLESS_ADMIN_USER=${PAPERLESS_ADMIN_USER:-admin}
+      - PAPERLESS_ADMIN_PASSWORD=${PAPERLESS_ADMIN_PASSWORD}
+      - PAPERLESS_ADMIN_MAIL=${PAPERLESS_ADMIN_MAIL:-admin@home.lan}
+      - PAPERLESS_OCR_LANGUAGE=${PAPERLESS_OCR_LANGUAGE:-por+eng}
+      - PAPERLESS_OCR_LANGUAGES=${PAPERLESS_OCR_LANGUAGES:-por}
+      - PAPERLESS_OCR_MODE=${PAPERLESS_OCR_MODE:-skip}
+      - PAPERLESS_OCR_CLEAN=${PAPERLESS_OCR_CLEAN:-none}
+      - PAPERLESS_TASK_WORKERS=${PAPERLESS_TASK_WORKERS:-1}
+      - PAPERLESS_THREADS_PER_WORKER=${PAPERLESS_THREADS_PER_WORKER:-1}
+      - PAPERLESS_WEBSERVER_WORKERS=${PAPERLESS_WEBSERVER_WORKERS:-1}
+      - PAPERLESS_ENABLE_NLTK=${PAPERLESS_ENABLE_NLTK:-false}
+      - PAPERLESS_TIME_ZONE=${TZ:-UTC}
+      - USERMAP_UID=${PAPERLESS_USERMAP_UID:-1000}
+      - USERMAP_GID=${PAPERLESS_USERMAP_GID:-1000}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.paperless.rule=Host(`paperless.home.lan`)"
+      - "traefik.http.services.paperless.loadbalancer.server.port=8000"
+      - "traefik.http.routers.paperless.entrypoints=websecure"
+      - "traefik.http.routers.paperless.tls=true"
+
   apprise:
     image: caronc/apprise:latest
     container_name: apprise
@@ -516,6 +638,24 @@ services:
       - LOG_LEVEL=info
       - DIUN_TELEGRAM_TOKEN=${DIUN_TELEGRAM_TOKEN}
       - DIUN_TELEGRAM_CHAT_ID=${DIUN_TELEGRAM_CHAT_ID}
+
+  solar-dashboard:
+    image: nginx:alpine
+    container_name: solar-dashboard
+    restart: unless-stopped
+    networks:
+      - proxy
+    volumes:
+      - ./configs/solar-dashboard/index.html:/usr/share/nginx/html/index.html:ro
+      - ./configs/solar-dashboard/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    environment:
+      - TZ=${TZ:-UTC}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.solar-dashboard.rule=Host(`solar.home.lan`)"
+      - "traefik.http.services.solar-dashboard.loadbalancer.server.port=80"
+      - "traefik.http.routers.solar-dashboard.entrypoints=websecure"
+      - "traefik.http.routers.solar-dashboard.tls=true"
 
 networks:
   proxy:

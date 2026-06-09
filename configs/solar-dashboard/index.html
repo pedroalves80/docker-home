@@ -1,0 +1,1629 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Casa Solar</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+@font-face{font-family:'Inter';font-style:normal;font-display:swap;src:local('Inter')}
+:root{
+  --bg:#0b0f19;
+  --bg-card:rgba(15,21,35,0.7);
+  --card-border:rgba(255,255,255,0.06);
+  --card-border-hover:rgba(255,255,255,0.1);
+  --solar:#f59e0b;--solar-dim:rgba(245,158,11,0.15);--solar-glow:rgba(245,158,11,0.25);
+  --battery:#10b981;--battery-dim:rgba(16,185,129,0.15);--battery-glow:rgba(16,185,129,0.25);
+  --house:#38bdf8;--house-dim:rgba(56,189,248,0.15);--house-glow:rgba(56,189,248,0.25);
+  --grid-import:#f43f5e;--grid-import-dim:rgba(244,63,94,0.15);--grid-import-glow:rgba(244,63,94,0.25);
+  --grid-export:#10b981;
+  --text:#e2e8f0;--text-dim:#94a3b8;--text-muted:#475569;
+  --accent:#818cf8;--accent-dim:rgba(129,140,248,0.15);
+}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:'Inter','SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:var(--bg);color:var(--text);min-height:100vh;min-height:100dvh;
+  overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 0%,rgba(245,158,11,0.04),transparent),
+    radial-gradient(ellipse 60% 40% at 80% 100%,rgba(16,185,129,0.03),transparent),
+    radial-gradient(ellipse 60% 40% at 20% 100%,rgba(56,189,248,0.03),transparent);
+}
+.container{max-width:960px;margin:0 auto;padding:16px 16px 32px}
+
+/* ---- HEADER ---- */
+.header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-radius:16px;
+  background:var(--bg-card);border:1px solid var(--card-border);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  margin-bottom:20px;
+}
+.header-left{display:flex;align-items:center;gap:12px}
+.header-logo{
+  width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,#f59e0b,#f97316);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 12px rgba(245,158,11,0.3);
+}
+.header-logo svg{width:22px;height:22px;fill:#fff}
+.header-title{font-size:17px;font-weight:700;letter-spacing:-0.3px}
+.header-sub{font-size:11px;color:var(--text-dim);margin-top:1px}
+.header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.header-time{font-size:13px;color:var(--text-dim);font-weight:500}
+.badge{font-size:10px;padding:4px 10px;border-radius:20px;font-weight:600;letter-spacing:0.3px;white-space:nowrap}
+.badge-online{background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.25)}
+.badge-offline{background:rgba(244,63,94,0.12);color:#fb7185;border:1px solid rgba(244,63,94,0.25)}
+.badge-tariff{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(129,140,248,0.25)}
+.tariff-countdown{font-size:10px;color:var(--text-muted);font-weight:500;white-space:nowrap}
+
+/* ---- FLOW SECTION ---- */
+.flow-section{
+  background:var(--bg-card);border:1px solid var(--card-border);
+  border-radius:20px;padding:24px 16px 20px;margin-bottom:20px;
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  position:relative;overflow:hidden;
+}
+.flow-section::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 50% 40% at 50% 45%,rgba(129,140,248,0.03),transparent);
+  pointer-events:none;
+}
+.flow-title{font-size:11px;letter-spacing:1.8px;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:16px}
+
+.flow-container{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:5/4}
+
+/* Flow node positioning — inset enough so translate(-50%,-50%) doesn't clip */
+.flow-node{
+  position:absolute;display:flex;flex-direction:column;align-items:center;z-index:2;
+  transform:translate(-50%,-50%);
+}
+.flow-node-solar{left:50%;top:14%}
+.flow-node-house{left:14%;top:50%}
+.flow-node-grid{left:86%;top:50%}
+.flow-node-battery{left:50%;top:86%}
+
+.node-card{
+  padding:14px 18px;border-radius:16px;text-align:center;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border:1px solid;min-width:120px;
+  transition:box-shadow 0.6s ease,border-color 0.6s ease;
+  position:relative;overflow:hidden;
+}
+.node-card::before{
+  content:'';position:absolute;inset:0;border-radius:16px;opacity:0.5;
+  pointer-events:none;transition:opacity 0.6s ease;
+}
+.node-icon-wrap{margin-bottom:6px;display:flex;justify-content:center}
+.node-icon-wrap svg{width:32px;height:32px;transition:filter 0.6s ease}
+.node-label{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;font-weight:600;color:var(--text-dim);margin-bottom:4px}
+.node-value{font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1.1;transition:color 0.4s ease}
+.node-unit{font-size:13px;font-weight:400;opacity:0.5}
+.node-detail{font-size:10px;color:var(--text-muted);margin-top:3px}
+
+/* Node theme colors */
+.node-solar .node-card{background:linear-gradient(135deg,rgba(245,158,11,0.1),rgba(245,158,11,0.04));border-color:rgba(245,158,11,0.2)}
+.node-solar.active .node-card{box-shadow:0 0 40px var(--solar-glow),0 0 80px rgba(245,158,11,0.08)}
+.node-solar .node-icon-wrap svg{fill:var(--solar)}
+.node-solar .node-value{color:var(--solar)}
+
+.node-house .node-card{background:linear-gradient(135deg,rgba(56,189,248,0.1),rgba(56,189,248,0.04));border-color:rgba(56,189,248,0.2)}
+.node-house.active .node-card{box-shadow:0 0 40px var(--house-glow),0 0 80px rgba(56,189,248,0.08)}
+.node-house .node-icon-wrap svg{fill:var(--house)}
+.node-house .node-value{color:var(--house)}
+
+.node-grid .node-card{background:linear-gradient(135deg,rgba(244,63,94,0.1),rgba(244,63,94,0.04));border-color:rgba(244,63,94,0.2)}
+.node-grid.active .node-card{box-shadow:0 0 40px var(--grid-import-glow),0 0 80px rgba(244,63,94,0.08)}
+.node-grid .node-icon-wrap svg{fill:var(--grid-import)}
+.node-grid .node-value{color:var(--grid-import)}
+.node-grid.exporting .node-card{background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.04));border-color:rgba(16,185,129,0.2);box-shadow:0 0 40px var(--battery-glow),0 0 80px rgba(16,185,129,0.08)}
+.node-grid.exporting .node-icon-wrap svg{fill:var(--grid-export)}
+.node-grid.exporting .node-value{color:var(--grid-export)}
+
+.node-battery .node-card{background:linear-gradient(135deg,rgba(16,185,129,0.1),rgba(16,185,129,0.04));border-color:rgba(16,185,129,0.2)}
+.node-battery.active .node-card{box-shadow:0 0 40px var(--battery-glow),0 0 80px rgba(16,185,129,0.08)}
+.node-battery .node-icon-wrap svg{fill:var(--battery)}
+.node-battery .node-value{color:var(--battery)}
+
+.node-inactive{opacity:0.4}
+.node-inactive .node-card{box-shadow:none!important}
+
+/* Battery SOC bar */
+.soc-bar-wrap{width:80px;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin:6px auto 0}
+.soc-bar{height:100%;border-radius:3px;transition:width 1s ease,background 1s ease}
+
+/* Center hub */
+.flow-hub{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:3;
+  width:56px;height:56px;border-radius:50%;
+  background:radial-gradient(circle,rgba(129,140,248,0.15),rgba(129,140,248,0.04));
+  border:1.5px solid rgba(129,140,248,0.25);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 40px rgba(129,140,248,0.1);
+}
+.flow-hub svg{width:24px;height:24px;fill:var(--accent);opacity:0.8}
+
+/* SVG flow paths */
+.flow-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+
+/* ---- STATS GRID ---- */
+.stats-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;
+}
+.stat-card{
+  background:var(--bg-card);border:1px solid var(--card-border);
+  border-radius:14px;padding:14px 12px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  text-align:center;transition:border-color 0.3s ease;
+}
+.stat-card:hover{border-color:var(--card-border-hover)}
+.stat-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;font-weight:600}
+.stat-value{font-size:22px;font-weight:700;letter-spacing:-0.5px;line-height:1.2}
+.stat-unit{font-size:11px;font-weight:400;opacity:0.5}
+
+/* ---- COST COMPARISON ---- */
+.cost-card{
+  background:linear-gradient(135deg,rgba(16,185,129,0.08),rgba(16,185,129,0.02));
+  border:1px solid rgba(16,185,129,0.15);
+  border-radius:14px;padding:16px 20px;margin-bottom:20px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap;
+  text-align:center;
+}
+.cost-item{display:flex;flex-direction:column;align-items:center;gap:2px}
+.cost-item-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.8px;font-weight:600}
+.cost-item-value{font-size:20px;font-weight:700;letter-spacing:-0.3px}
+.cost-sep{width:1px;height:32px;background:rgba(255,255,255,0.08)}
+
+/* ---- ENERGY SOURCE DONUT ---- */
+.donut-section{
+  background:var(--bg-card);border:1px solid var(--card-border);
+  border-radius:20px;padding:20px;margin-bottom:20px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.donut-title{font-size:11px;letter-spacing:1.8px;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:16px}
+.donut-inner{display:flex;align-items:center;justify-content:center;gap:32px;flex-wrap:wrap}
+.donut-canvas-wrap{position:relative;flex-shrink:0}
+.donut-canvas{display:block}
+.donut-center-label{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  text-align:center;pointer-events:none;
+}
+.donut-center-pct{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.5px}
+.donut-center-sub{font-size:10px;color:var(--text-muted);margin-top:1px}
+.donut-legend{display:flex;flex-direction:column;gap:10px}
+.donut-legend-item{display:flex;align-items:center;gap:10px}
+.donut-legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+.donut-legend-info{display:flex;flex-direction:column;gap:1px}
+.donut-legend-label{font-size:11px;color:var(--text-dim);font-weight:600}
+.donut-legend-val{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+
+/* ---- TESLA CARDS ---- */
+.section-title{font-size:11px;letter-spacing:1.8px;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:12px}
+.tesla-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.tesla-card{
+  background:var(--bg-card);border:1px solid var(--card-border);
+  border-radius:16px;padding:16px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  transition:border-color 0.3s ease;
+}
+.tesla-card:hover{border-color:var(--card-border-hover)}
+.tesla-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.tesla-name-row{display:flex;align-items:center;gap:8px}
+.tesla-icon svg{width:24px;height:24px}
+.tesla-name{font-size:13px;font-weight:700;letter-spacing:-0.2px}
+.tesla-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.badge-home{background:rgba(56,189,248,0.12);color:#38bdf8;border:1px solid rgba(56,189,248,0.25);font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600}
+.badge-charging{background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.25);font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600}
+.tesla-batt-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.tesla-batt-pct{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1}
+.tesla-batt-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
+.tesla-batt-bar{height:100%;border-radius:3px;transition:width 1s ease,background 1s ease}
+.tesla-details{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
+.tesla-detail-item{font-size:10px;color:var(--text-muted);font-weight:500}
+.tesla-detail-val{color:var(--text-dim);font-weight:600}
+
+/* ---- MONTHLY TOTALS ---- */
+.monthly-section{margin-bottom:20px}
+.monthly-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+
+/* ---- PV STRINGS ---- */
+.pv-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.pv-card{
+  background:var(--bg-card);border:1px solid var(--card-border);
+  border-radius:14px;padding:14px 16px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.pv-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.pv-label{font-size:11px;color:var(--text-dim);font-weight:600;letter-spacing:0.3px}
+.pv-power{font-size:20px;font-weight:700;color:var(--solar);letter-spacing:-0.3px}
+.pv-bar-wrap{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin-bottom:8px}
+.pv-bar{height:100%;background:linear-gradient(90deg,var(--solar),#fbbf24);border-radius:2px;transition:width 1s ease}
+.pv-details{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);font-weight:500}
+
+/* ---- PEAK PRODUCTION ---- */
+.peak-card{
+  background:var(--bg-card);border:1px solid var(--card-border);
+  border-radius:14px;padding:14px 20px;margin-bottom:20px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  display:flex;align-items:center;gap:12px;
+}
+.peak-icon{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:var(--solar-dim);border:1px solid rgba(245,158,11,0.2);
+  display:flex;align-items:center;justify-content:center;
+}
+.peak-icon svg{width:18px;height:18px;fill:var(--solar)}
+.peak-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.8px;font-weight:600;margin-bottom:3px}
+.peak-value{font-size:18px;font-weight:700;color:var(--solar);letter-spacing:-0.3px}
+.peak-time{font-size:11px;color:var(--text-muted);margin-left:4px;font-weight:500}
+
+/* ---- CHART ---- */
+.chart-section{
+  background:var(--bg-card);border:1px solid var(--card-border);
+  border-radius:20px;padding:20px;
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+}
+.chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.chart-title{font-size:13px;font-weight:600;letter-spacing:-0.2px}
+.chart-legend{display:flex;gap:16px}
+.chart-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-dim);font-weight:500}
+.chart-legend-dot{width:8px;height:8px;border-radius:2px}
+.chart-canvas{width:100%;height:200px;display:block}
+
+/* ---- RESPONSIVE ---- */
+@media(max-width:700px){
+  .container{padding:10px 10px 24px}
+  .header{flex-direction:column;gap:10px;text-align:center;padding:12px 16px}
+  .header-right{justify-content:center}
+  .flow-container{aspect-ratio:auto;height:360px;max-width:100%}
+  .flow-section{padding:16px 10px 12px}
+  .node-card{padding:8px 10px;min-width:auto;border-radius:12px}
+  .node-icon-wrap{margin-bottom:2px}
+  .node-icon-wrap svg{width:20px;height:20px}
+  .node-value{font-size:18px}
+  .node-unit{font-size:11px}
+  .node-label{font-size:8px;letter-spacing:0.8px}
+  .node-detail{font-size:9px}
+  .flow-hub{width:36px;height:36px}
+  .flow-hub svg{width:15px;height:15px}
+  .soc-bar-wrap{width:56px;height:5px}
+  .flow-node-solar{top:14%}
+  .flow-node-battery{top:86%}
+  .flow-node-house{left:14%}
+  .flow-node-grid{left:86%}
+  .stats-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat-card{padding:12px 8px}
+  .stat-value{font-size:18px}
+  .stat-label{font-size:9px}
+  .cost-card{gap:10px;padding:14px 10px;flex-wrap:wrap;justify-content:center}
+  .cost-item-value{font-size:17px}
+  .cost-sep{display:none}
+  .pv-row{grid-template-columns:1fr;gap:8px}
+  .chart-canvas{height:160px}
+  .tesla-row{grid-template-columns:1fr;gap:8px}
+  .donut-inner{flex-direction:column;gap:16px}
+  .monthly-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .peak-card{padding:12px 16px}
+}
+@media(max-width:400px){
+  .flow-container{height:320px}
+  .node-card{padding:6px 8px}
+  .node-value{font-size:16px}
+  .node-icon-wrap svg{width:16px;height:16px}
+  .node-label{font-size:7px}
+  .node-detail{display:none}
+  .flow-hub{width:30px;height:30px}
+  .flow-hub svg{width:12px;height:12px}
+  .soc-bar-wrap{width:48px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-logo">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div>
+        <div class="header-title">Casa Solar</div>
+        <div class="header-sub">Deye SG04LP3 &middot; Santo Tirso</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="header-time" id="headerTime"></span>
+      <span class="badge badge-online" id="statusBadge">ONLINE</span>
+      <span class="badge badge-tariff" id="tariffBadge">--</span>
+      <span class="tariff-countdown" id="tariffCountdown"></span>
+    </div>
+  </div>
+
+  <!-- ENERGY FLOW -->
+  <div class="flow-section">
+    <div class="flow-title">Fluxo de energia</div>
+    <div class="flow-container" id="flowContainer">
+      <!-- SVG flow lines drawn here -->
+      <svg class="flow-svg" id="flowSvg"></svg>
+
+      <!-- Center hub -->
+      <div class="flow-hub">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" fill="currentColor"/></svg>
+      </div>
+
+      <!-- Solar node (top) -->
+      <div class="flow-node flow-node-solar node-solar active" id="nodeSolar">
+        <div class="node-card">
+          <div class="node-icon-wrap">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </div>
+          <div class="node-label">Solar</div>
+          <div class="node-value"><span id="pvPower">0</span> <span class="node-unit">W</span></div>
+          <div class="node-detail" id="pvDetail">PV1: -- &middot; PV2: --</div>
+        </div>
+      </div>
+
+      <!-- House node (left) -->
+      <div class="flow-node flow-node-house node-house active" id="nodeHouse">
+        <div class="node-card">
+          <div class="node-icon-wrap">
+            <svg viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1m-2 0h2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="node-label">Casa</div>
+          <div class="node-value"><span id="loadPower">0</span> <span class="node-unit">W</span></div>
+        </div>
+      </div>
+
+      <!-- Grid node (right) -->
+      <div class="flow-node flow-node-grid node-grid" id="nodeGrid">
+        <div class="node-card">
+          <div class="node-icon-wrap">
+            <svg viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="node-label" id="gridLabel">Rede</div>
+          <div class="node-value"><span id="gridPower">0</span> <span class="node-unit">W</span></div>
+          <div class="node-detail" id="gridDetail"></div>
+        </div>
+      </div>
+
+      <!-- Battery node (bottom) -->
+      <div class="flow-node flow-node-battery node-battery" id="nodeBattery">
+        <div class="node-card">
+          <div class="node-icon-wrap">
+            <svg viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M22 11v2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="5" y="10" width="4" height="4" rx="0.5" fill="currentColor" opacity="0.5"/></svg>
+          </div>
+          <div class="node-label">Bateria <span id="batterySOC">--%</span></div>
+          <div class="node-value"><span id="batteryPower">0</span> <span class="node-unit">W</span></div>
+          <div class="soc-bar-wrap"><div class="soc-bar" id="batteryBar"></div></div>
+          <div class="node-detail" id="batteryDetail"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-label">Produ&ccedil;&atilde;o</div>
+      <div class="stat-value" style="color:var(--solar)"><span id="dailyProd">--</span> <span class="stat-unit">kWh</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Consumo</div>
+      <div class="stat-value" style="color:var(--house)"><span id="dailyLoad">--</span> <span class="stat-unit">kWh</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Autoconsumo</div>
+      <div class="stat-value" style="color:var(--solar)"><span id="selfConsumption">--</span><span class="stat-unit">%</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Autossufici&ecirc;ncia</div>
+      <div class="stat-value" style="color:var(--battery)"><span id="selfSufficiency">--</span><span class="stat-unit">%</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Poupan&ccedil;a</div>
+      <div class="stat-value" style="color:var(--battery)"><span id="dailySavings">--</span> <span class="stat-unit">&euro;</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Custo rede</div>
+      <div class="stat-value" style="color:var(--grid-import)"><span id="dailyCost">--</span> <span class="stat-unit">&euro;</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Importado</div>
+      <div class="stat-value" style="color:var(--grid-import)"><span id="dailyImport">--</span> <span class="stat-unit">kWh</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Exportado</div>
+      <div class="stat-value" style="color:var(--grid-export)"><span id="dailyExport">--</span> <span class="stat-unit">kWh</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Autonomia</div>
+      <div class="stat-value" style="color:var(--battery)"><span id="batteryAutonomy">--</span></div>
+    </div>
+  </div>
+
+  <!-- COST COMPARISON -->
+  <div class="cost-card" id="costCard">
+    <div class="cost-item">
+      <div class="cost-item-label">Sem solar</div>
+      <div class="cost-item-value" style="color:var(--grid-import)"><span id="costWithout">--</span>&euro;</div>
+    </div>
+    <div class="cost-sep"></div>
+    <div class="cost-item">
+      <div class="cost-item-label">Real</div>
+      <div class="cost-item-value" style="color:var(--text)"><span id="costReal">--</span>&euro;</div>
+    </div>
+    <div class="cost-sep"></div>
+    <div class="cost-item">
+      <div class="cost-item-label">Poupaste</div>
+      <div class="cost-item-value" style="color:var(--battery)"><span id="costSaved">--</span>&euro;</div>
+    </div>
+  </div>
+
+  <!-- ENERGY SOURCE DONUT -->
+  <div class="donut-section">
+    <div class="donut-title">Origem da energia consumida</div>
+    <div class="donut-inner">
+      <div class="donut-canvas-wrap">
+        <canvas class="donut-canvas" id="donutChart" width="150" height="150"></canvas>
+        <div class="donut-center-label">
+          <div class="donut-center-pct" id="donutCenterPct">--</div>
+          <div class="donut-center-sub">solar</div>
+        </div>
+      </div>
+      <div class="donut-legend">
+        <div class="donut-legend-item">
+          <div class="donut-legend-dot" style="background:#f59e0b"></div>
+          <div class="donut-legend-info">
+            <div class="donut-legend-label">Solar</div>
+            <div class="donut-legend-val"><span id="donutSolarVal">--</span> <span style="font-size:10px;opacity:0.5">kWh</span></div>
+          </div>
+        </div>
+        <div class="donut-legend-item">
+          <div class="donut-legend-dot" style="background:#10b981"></div>
+          <div class="donut-legend-info">
+            <div class="donut-legend-label">Bateria</div>
+            <div class="donut-legend-val"><span id="donutBattVal">--</span> <span style="font-size:10px;opacity:0.5">kWh</span></div>
+          </div>
+        </div>
+        <div class="donut-legend-item">
+          <div class="donut-legend-dot" style="background:#f43f5e"></div>
+          <div class="donut-legend-info">
+            <div class="donut-legend-label">Rede</div>
+            <div class="donut-legend-val"><span id="donutGridVal">--</span> <span style="font-size:10px;opacity:0.5">kWh</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TESLA STATUS -->
+  <div style="margin-bottom:20px">
+    <div class="section-title">Teslas</div>
+    <div class="tesla-row">
+      <!-- Batmobile -->
+      <div class="tesla-card">
+        <div class="tesla-header">
+          <div class="tesla-name-row">
+            <div class="tesla-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-dim)"><path d="M5 17H3a2 2 0 01-2-2v-4a2 2 0 012-2h1l2-4h10l2 4h1a2 2 0 012 2v4a2 2 0 01-2 2h-2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 9h14"/></svg>
+            </div>
+            <span class="tesla-name">Model 3</span>
+          </div>
+          <div class="tesla-badges">
+            <span id="tesla1HomeBadge" class="badge-home" style="display:none">Em casa</span>
+            <span id="tesla1ChargeBadge" class="badge-charging" style="display:none">A carregar</span>
+          </div>
+        </div>
+        <div class="tesla-batt-row">
+          <div class="tesla-batt-pct" id="tesla1BattPct" style="color:var(--battery)">--%</div>
+          <div class="tesla-batt-bar-wrap">
+            <div class="tesla-batt-bar" id="tesla1BattBar"></div>
+          </div>
+        </div>
+        <div class="tesla-details">
+          <div class="tesla-detail-item">Estado: <span class="tesla-detail-val" id="tesla1State">--</span></div>
+          <div class="tesla-detail-item">Alcance: <span class="tesla-detail-val" id="tesla1Range">--</span> km</div>
+          <div class="tesla-detail-item">Carga: <span class="tesla-detail-val" id="tesla1ChargingState">--</span></div>
+          <div class="tesla-detail-item" id="tesla1PowerItem">Pot.: <span class="tesla-detail-val" id="tesla1ChargerPower">--</span> kW</div>
+        </div>
+      </div>
+      <!-- Tesla 2 -->
+      <div class="tesla-card">
+        <div class="tesla-header">
+          <div class="tesla-name-row">
+            <div class="tesla-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-dim)"><path d="M5 17H3a2 2 0 01-2-2v-4a2 2 0 012-2h1l2-4h10l2 4h1a2 2 0 012 2v4a2 2 0 01-2 2h-2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 9h14"/></svg>
+            </div>
+            <span class="tesla-name">Model Y</span>
+          </div>
+          <div class="tesla-badges">
+            <span id="tesla2HomeBadge" class="badge-home" style="display:none">Em casa</span>
+            <span id="tesla2ChargeBadge" class="badge-charging" style="display:none">A carregar</span>
+          </div>
+        </div>
+        <div class="tesla-batt-row">
+          <div class="tesla-batt-pct" id="tesla2BattPct" style="color:var(--battery)">--%</div>
+          <div class="tesla-batt-bar-wrap">
+            <div class="tesla-batt-bar" id="tesla2BattBar"></div>
+          </div>
+        </div>
+        <div class="tesla-details">
+          <div class="tesla-detail-item">Estado: <span class="tesla-detail-val" id="tesla2State">--</span></div>
+          <div class="tesla-detail-item">Alcance: <span class="tesla-detail-val" id="tesla2Range">--</span> km</div>
+          <div class="tesla-detail-item">Carga: <span class="tesla-detail-val" id="tesla2ChargingState">--</span></div>
+          <div class="tesla-detail-item" id="tesla2PowerItem">Pot.: <span class="tesla-detail-val" id="tesla2ChargerPower">--</span> kW</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MONTHLY TOTALS -->
+  <div class="monthly-section">
+    <div class="section-title">Este m&ecirc;s</div>
+    <div class="monthly-grid">
+      <div class="stat-card">
+        <div class="stat-label">Produ&ccedil;&atilde;o</div>
+        <div class="stat-value" style="color:var(--solar)"><span id="monthlyProd">--</span> <span class="stat-unit">kWh</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Consumo</div>
+        <div class="stat-value" style="color:var(--house)"><span id="monthlyConsumption">--</span> <span class="stat-unit">kWh</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Importado</div>
+        <div class="stat-value" style="color:var(--grid-import)"><span id="monthlyImport">--</span> <span class="stat-unit">kWh</span></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Exportado</div>
+        <div class="stat-value" style="color:var(--grid-export)"><span id="monthlyExport">--</span> <span class="stat-unit">kWh</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PV STRINGS -->
+  <div class="pv-row">
+    <div class="pv-card">
+      <div class="pv-header">
+        <span class="pv-label">PV1 &mdash; String 1</span>
+        <span class="pv-power" id="pv1Power">-- W</span>
+      </div>
+      <div class="pv-bar-wrap"><div class="pv-bar" id="pv1Bar" style="width:0%"></div></div>
+      <div class="pv-details">
+        <span><span id="pv1Voltage">--</span> V</span>
+        <span><span id="pv1Current">--</span> A</span>
+      </div>
+    </div>
+    <div class="pv-card">
+      <div class="pv-header">
+        <span class="pv-label">PV2 &mdash; String 2</span>
+        <span class="pv-power" id="pv2Power">-- W</span>
+      </div>
+      <div class="pv-bar-wrap"><div class="pv-bar" id="pv2Bar" style="width:0%"></div></div>
+      <div class="pv-details">
+        <span><span id="pv2Voltage">--</span> V</span>
+        <span><span id="pv2Current">--</span> A</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PEAK PRODUCTION -->
+  <div class="peak-card">
+    <div class="peak-icon">
+      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+    </div>
+    <div>
+      <div class="peak-label">Pico hoje</div>
+      <div>
+        <span class="peak-value" id="peakValue">-- kW</span>
+        <span class="peak-time" id="peakTime"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 24H CHART -->
+  <div class="chart-section">
+    <div class="chart-header">
+      <div class="chart-title">Produ&ccedil;&atilde;o e consumo &mdash; 24h</div>
+      <div class="chart-legend">
+        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--solar)"></div>Solar</div>
+        <div class="chart-legend-item"><div class="chart-legend-dot" style="background:var(--house)"></div>Consumo</div>
+      </div>
+    </div>
+    <canvas class="chart-canvas" id="historyChart"></canvas>
+  </div>
+
+</div>
+
+<script>
+// ============================
+// Configuration
+// ============================
+const ENTITIES = {
+  pvPower: 'sensor.deye_inverter_mqtt_dc_total_power',
+  pv1Power: 'sensor.deye_inverter_mqtt_pv1_power',
+  pv2Power: 'sensor.deye_inverter_mqtt_pv2_power',
+  pv1Voltage: 'sensor.deye_inverter_mqtt_pv1_voltage',
+  pv2Voltage: 'sensor.deye_inverter_mqtt_pv2_voltage',
+  pv1Current: 'sensor.deye_inverter_mqtt_pv1_current',
+  pv2Current: 'sensor.deye_inverter_mqtt_pv2_current',
+  loadPower: 'sensor.deye_inverter_mqtt_total_load_power',
+  gridPower: 'sensor.deye_inverter_mqtt_total_grid_power',
+  batteryPower: 'sensor.deye_inverter_mqtt_battery_power',
+  batterySOC: 'sensor.deye_inverter_mqtt_battery_soc',
+  batteryTemp: 'sensor.deye_inverter_mqtt_battery_temperature',
+  dailyProd: 'sensor.deye_inverter_mqtt_daily_production',
+  dailyLoad: 'sensor.deye_inverter_mqtt_daily_load_consumption',
+  dailyImport: 'sensor.deye_inverter_mqtt_daily_energy_bought',
+  dailyExport: 'sensor.deye_inverter_mqtt_daily_energy_sold',
+  dailyBatteryDischarge: 'sensor.deye_inverter_mqtt_daily_battery_discharge',
+  dailyBatteryCharge: 'sensor.deye_inverter_mqtt_daily_battery_charge',
+  selfConsumption: 'sensor.solar_self_consumption_rate',
+  selfSufficiency: 'sensor.solar_self_sufficiency_rate',
+  dailySavings: 'sensor.solar_daily_savings',
+  dailyCost: 'sensor.solar_daily_net_cost',
+  tariffPeriod: 'sensor.electricity_tariff_period',
+  currentRate: 'sensor.electricity_current_rate',
+  inverterStatus: 'sensor.deye_inverter_mqtt_running_status',
+  avoidedCost: 'sensor.solar_daily_avoided_cost',
+  costWithoutSolar: 'sensor.electricity_cost_without_solar',
+  monthlyProd: 'sensor.producao_solar_mensal',
+  monthlyImport: 'sensor.importacao_rede_mensal',
+  monthlyExport: 'sensor.exportacao_rede_mensal',
+  monthlyConsumption: 'sensor.consumo_casa_mensal',
+  tesla1State: 'sensor.model_3_state',
+  tesla1Battery: 'sensor.model_3_battery',
+  tesla1ChargingState: 'sensor.model_3_charging',
+  tesla1ChargerPower: 'sensor.model_3_charger_power',
+  tesla1Range: 'sensor.model_3_range',
+  tesla1PluggedIn: 'binary_sensor.model_3_plugged_in',
+  tesla1Geofence: 'sensor.model_3_location',
+  tesla2State: 'sensor.model_y_state',
+  tesla2Battery: 'sensor.model_y_battery',
+  tesla2ChargingState: 'sensor.model_y_charging',
+  tesla2ChargerPower: 'sensor.model_y_charger_power',
+  tesla2Range: 'sensor.model_y_range',
+  tesla2PluggedIn: 'binary_sensor.model_y_plugged_in',
+  tesla2Geofence: 'sensor.model_y_location',
+};
+
+const FLOW_THRESHOLD = 50; // W — below this, a flow is considered inactive
+const REFRESH_INTERVAL = 15000;
+const HISTORY_INTERVAL = 300000;
+const BATTERY_CAPACITY_WH = 5120; // Deye SG04LP3
+
+let state = {};
+let historyData = { solar: [], load: [], labels: [] };
+let animationFrameId = null;
+let flowPaths = [];
+let flowDots = [];
+
+// Peak tracking — resets on page reload
+let peakPvW = 0;
+let peakPvTime = null;
+
+// ============================
+// Utilities
+// ============================
+function num(v, decimals = 0) {
+  const n = parseFloat(v);
+  return isNaN(n) ? 0 : Number(n.toFixed(decimals));
+}
+
+function setText(id, val) {
+  const el = document.getElementById(id);
+  if (el && el.textContent !== String(val)) el.textContent = val;
+}
+
+function setDisplay(id, show) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = show ? '' : 'none';
+}
+
+// ============================
+// Tariff countdown
+// ============================
+function updateTariffCountdown() {
+  const now = new Date();
+  const h = now.getHours();
+  const m = now.getMinutes();
+
+  let targetH, nextPeriod;
+  if (h < 8) {
+    targetH = 8;
+    nextPeriod = 'fora de vazio';
+  } else if (h < 22) {
+    targetH = 22;
+    nextPeriod = 'vazio';
+  } else {
+    targetH = 8 + 24; // next day 08:00
+    nextPeriod = 'fora de vazio';
+  }
+
+  const totalMinNow = h * 60 + m;
+  let diffMin = targetH * 60 - totalMinNow;
+  if (diffMin < 0) diffMin += 24 * 60;
+
+  const dh = Math.floor(diffMin / 60);
+  const dm = diffMin % 60;
+  const label = dh > 0 ? dh + 'h ' + dm + 'm' : dm + 'm';
+  setText('tariffCountdown', label + ' → ' + nextPeriod);
+}
+
+// ============================
+// Battery autonomy
+// ============================
+function updateAutonomy(soc, loadW) {
+  const el = document.getElementById('batteryAutonomy');
+  if (!el) return;
+  if (loadW < 10) {
+    el.textContent = '∞';
+    return;
+  }
+  const hours = (soc / 100) * BATTERY_CAPACITY_WH / loadW;
+  el.textContent = '~' + hours.toFixed(1) + 'h';
+}
+
+// ============================
+// Donut chart
+// ============================
+function drawDonut(solar, battery, grid) {
+  const canvas = document.getElementById('donutChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const size = 150;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
+  canvas.style.width = size + 'px';
+  canvas.style.height = size + 'px';
+  ctx.scale(dpr, dpr);
+
+  const cx = size / 2;
+  const cy = size / 2;
+  const outerR = 64;
+  const innerR = 44;
+  const total = solar + battery + grid;
+
+  ctx.clearRect(0, 0, size, size);
+
+  if (total <= 0) {
+    // Empty ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, 0, Math.PI * 2);
+    ctx.arc(cx, cy, innerR, 0, Math.PI * 2, true);
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.fill();
+    setText('donutCenterPct', '--');
+    return;
+  }
+
+  const segments = [
+    { value: solar,   color: '#f59e0b' },
+    { value: battery, color: '#10b981' },
+    { value: grid,    color: '#f43f5e' },
+  ];
+
+  const gap = 0.04; // radians between segments
+  let startAngle = -Math.PI / 2;
+
+  segments.forEach(seg => {
+    if (seg.value <= 0) return;
+    const sweep = (seg.value / total) * (Math.PI * 2) - gap;
+    ctx.beginPath();
+    ctx.arc(cx, cy, outerR, startAngle, startAngle + sweep);
+    ctx.arc(cx, cy, innerR, startAngle + sweep, startAngle, true);
+    ctx.closePath();
+    ctx.fillStyle = seg.color;
+    ctx.fill();
+    startAngle += sweep + gap;
+  });
+
+  const solarPct = total > 0 ? Math.round((solar / total) * 100) : 0;
+  setText('donutCenterPct', solarPct + '%');
+}
+
+// ============================
+// Tesla card helper
+// ============================
+function updateTeslaCard(n) {
+  const battPct = num(state['tesla' + n + 'Battery']);
+  const chargingState = state['tesla' + n + 'ChargingState'] || '--';
+  const carState = state['tesla' + n + 'State'] || '--';
+  const chargerPower = num(state['tesla' + n + 'ChargerPower'], 1);
+  const range = num(state['tesla' + n + 'Range']);
+  const pluggedIn = state['tesla' + n + 'PluggedIn'] === 'on';
+  const geofence = state['tesla' + n + 'Geofence'] || '';
+  const isHome = geofence.toLowerCase().includes('home') || geofence.toLowerCase().includes('casa');
+  const isCharging = chargingState.toLowerCase() === 'charging';
+
+  setText('tesla' + n + 'BattPct', battPct + '%');
+  setText('tesla' + n + 'State', carState);
+  setText('tesla' + n + 'ChargingState', chargingState);
+  setText('tesla' + n + 'ChargerPower', chargerPower.toFixed(1));
+  // Range from HA Tesla integration is in miles by default — convert to km
+  const rangeKm = Math.round(range * 1.60934);
+  setText('tesla' + n + 'Range', rangeKm);
+
+  // Battery bar color
+  const bar = document.getElementById('tesla' + n + 'BattBar');
+  const pctEl = document.getElementById('tesla' + n + 'BattPct');
+  if (bar) {
+    bar.style.width = battPct + '%';
+    if (battPct > 60) {
+      bar.style.background = 'linear-gradient(90deg,#10b981,#34d399)';
+      if (pctEl) pctEl.style.color = 'var(--battery)';
+    } else if (battPct > 25) {
+      bar.style.background = 'linear-gradient(90deg,#eab308,#fbbf24)';
+      if (pctEl) pctEl.style.color = '#eab308';
+    } else {
+      bar.style.background = 'linear-gradient(90deg,#f43f5e,#fb7185)';
+      if (pctEl) pctEl.style.color = 'var(--grid-import)';
+    }
+  }
+
+  // Badges
+  const homeBadge = document.getElementById('tesla' + n + 'HomeBadge');
+  const chargeBadge = document.getElementById('tesla' + n + 'ChargeBadge');
+  if (homeBadge) homeBadge.style.display = isHome ? '' : 'none';
+  if (chargeBadge) chargeBadge.style.display = isCharging ? '' : 'none';
+
+  // Hide charger power row if not plugged in
+  const powerItem = document.getElementById('tesla' + n + 'PowerItem');
+  if (powerItem) powerItem.style.display = pluggedIn ? '' : 'none';
+}
+
+// ============================
+// Peak production tracking
+// ============================
+function updatePeak(pvW) {
+  if (pvW > peakPvW) {
+    peakPvW = pvW;
+    peakPvTime = new Date();
+  }
+  if (peakPvW > 0) {
+    setText('peakValue', (peakPvW / 1000).toFixed(2) + ' kW');
+    if (peakPvTime) {
+      const hh = String(peakPvTime.getHours()).padStart(2, '0');
+      const mm = String(peakPvTime.getMinutes()).padStart(2, '0');
+      setText('peakTime', 'às ' + hh + ':' + mm);
+    }
+  } else {
+    setText('peakValue', '-- kW');
+    setText('peakTime', '');
+  }
+}
+
+// ============================
+// Flow diagram — SVG path computation
+// ============================
+function getFlowGeometry() {
+  const container = document.getElementById('flowContainer');
+  if (!container) return null;
+  const rect = container.getBoundingClientRect();
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+
+  function nodeCenter(sel) {
+    const el = container.querySelector(sel);
+    if (!el) return { x: w / 2, y: h / 2 };
+    const r = el.getBoundingClientRect();
+    return { x: r.left + r.width / 2 - rect.left, y: r.top + r.height / 2 - rect.top };
+  }
+
+  const solar   = nodeCenter('.flow-node-solar');
+  const house   = nodeCenter('.flow-node-house');
+  const grid    = nodeCenter('.flow-node-grid');
+  const battery = nodeCenter('.flow-node-battery');
+  const hub     = { x: w * 0.50, y: h * 0.50 };
+
+  const nodeOffY = Math.min(h * 0.10, 52);
+  const nodeOffX = Math.min(w * 0.10, 64);
+  const hubR = Math.min(w * 0.04, 28);
+
+  return {
+    solarToHub: {
+      start: { x: solar.x, y: solar.y + nodeOffY },
+      end:   { x: hub.x, y: hub.y - hubR },
+      cp1:   { x: solar.x, y: solar.y + nodeOffY + (hub.y - solar.y - nodeOffY - hubR) * 0.4 },
+      cp2:   { x: hub.x, y: hub.y - hubR - (hub.y - solar.y - nodeOffY - hubR) * 0.4 },
+    },
+    hubToHouse: {
+      start: { x: hub.x - hubR, y: hub.y },
+      end:   { x: house.x + nodeOffX, y: house.y },
+      cp1:   { x: hub.x - hubR - (hub.x - hubR - house.x - nodeOffX) * 0.4, y: hub.y },
+      cp2:   { x: house.x + nodeOffX + (hub.x - hubR - house.x - nodeOffX) * 0.4, y: house.y },
+    },
+    hubToGrid: {
+      start: { x: hub.x + hubR, y: hub.y },
+      end:   { x: grid.x - nodeOffX, y: grid.y },
+      cp1:   { x: hub.x + hubR + (grid.x - nodeOffX - hub.x - hubR) * 0.4, y: hub.y },
+      cp2:   { x: grid.x - nodeOffX - (grid.x - nodeOffX - hub.x - hubR) * 0.4, y: grid.y },
+    },
+    hubToBattery: {
+      start: { x: hub.x, y: hub.y + hubR },
+      end:   { x: battery.x, y: battery.y - nodeOffY },
+      cp1:   { x: hub.x, y: hub.y + hubR + (battery.y - nodeOffY - hub.y - hubR) * 0.4 },
+      cp2:   { x: battery.x, y: battery.y - nodeOffY - (battery.y - nodeOffY - hub.y - hubR) * 0.4 },
+    },
+    hub,
+  };
+}
+
+function buildBezierPath(seg) {
+  return `M${seg.start.x},${seg.start.y} C${seg.cp1.x},${seg.cp1.y} ${seg.cp2.x},${seg.cp2.y} ${seg.end.x},${seg.end.y}`;
+}
+
+function reverseBezierPath(seg) {
+  return `M${seg.end.x},${seg.end.y} C${seg.cp2.x},${seg.cp2.y} ${seg.cp1.x},${seg.cp1.y} ${seg.start.x},${seg.start.y}`;
+}
+
+function bezierPoint(seg, t) {
+  const mt = 1 - t;
+  const mt2 = mt * mt;
+  const mt3 = mt2 * mt;
+  const t2 = t * t;
+  const t3 = t2 * t;
+  return {
+    x: mt3 * seg.start.x + 3 * mt2 * t * seg.cp1.x + 3 * mt * t2 * seg.cp2.x + t3 * seg.end.x,
+    y: mt3 * seg.start.y + 3 * mt2 * t * seg.cp1.y + 3 * mt * t2 * seg.cp2.y + t3 * seg.end.y,
+  };
+}
+
+// ============================
+// Determine active flows
+// ============================
+function computeFlows(pv, load, grid, batt) {
+  const flows = [];
+  const T = FLOW_THRESHOLD;
+
+  const solarActive = pv > T;
+  const battCharging = batt > T;
+  const battDischarging = batt < -T;
+  const gridImporting = grid > T;
+  const gridExporting = grid < -T;
+  const houseConsuming = load > T;
+
+  if (solarActive && houseConsuming) {
+    const val = Math.min(pv, load);
+    flows.push({ id: 'solar-house', segments: ['solarToHub', 'hubToHouse'], direction: 'forward', value: val, color: '#f59e0b' });
+  }
+
+  if (solarActive && battCharging) {
+    const solarSurplusForBatt = Math.max(0, pv - load);
+    if (solarSurplusForBatt > T || (pv > T && batt > T && !gridImporting)) {
+      const val = Math.min(batt, pv);
+      flows.push({ id: 'solar-batt', segments: ['solarToHub', 'hubToBattery'], direction: 'forward', value: val, color: '#f59e0b' });
+    }
+  }
+
+  if (solarActive && gridExporting) {
+    const val = Math.abs(grid);
+    flows.push({ id: 'solar-grid', segments: ['solarToHub', 'hubToGrid'], direction: 'forward', value: val, color: '#f59e0b' });
+  }
+
+  if (gridImporting && houseConsuming) {
+    const val = Math.min(grid, load);
+    flows.push({ id: 'grid-house', segments: ['hubToGrid', 'hubToHouse'], direction: 'reverse-first', value: val, color: '#f43f5e' });
+  }
+
+  if (battCharging && gridImporting) {
+    const solarContrib = solarActive ? Math.min(pv, batt) : 0;
+    const gridContrib = batt - solarContrib;
+    if (gridContrib > T) {
+      flows.push({ id: 'grid-batt', segments: ['hubToGrid', 'hubToBattery'], direction: 'reverse-first', value: gridContrib, color: '#f43f5e' });
+    }
+  } else if (battCharging && !solarActive) {
+    flows.push({ id: 'grid-batt', segments: ['hubToGrid', 'hubToBattery'], direction: 'reverse-first', value: batt, color: '#f43f5e' });
+  }
+
+  if (battDischarging && houseConsuming) {
+    const val = Math.min(Math.abs(batt), load);
+    flows.push({ id: 'batt-house', segments: ['hubToBattery', 'hubToHouse'], direction: 'reverse-first', value: val, color: '#10b981' });
+  }
+
+  return flows;
+}
+
+// ============================
+// Draw flow SVG paths and animate dots
+// ============================
+let currentFlowState = [];
+
+function updateFlowDiagram(pv, load, grid, batt) {
+  const svg = document.getElementById('flowSvg');
+  const geo = getFlowGeometry();
+  if (!geo) return;
+
+  const container = document.getElementById('flowContainer');
+  const w = container.clientWidth;
+  const h = container.clientHeight;
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+  svg.innerHTML = '';
+
+  const ns = 'http://www.w3.org/2000/svg';
+
+  const defs = document.createElementNS(ns, 'defs');
+  const filter = document.createElementNS(ns, 'filter');
+  filter.setAttribute('id', 'glow');
+  filter.setAttribute('x', '-50%');
+  filter.setAttribute('y', '-50%');
+  filter.setAttribute('width', '200%');
+  filter.setAttribute('height', '200%');
+  const blur = document.createElementNS(ns, 'feGaussianBlur');
+  blur.setAttribute('stdDeviation', '3');
+  blur.setAttribute('result', 'blur');
+  filter.appendChild(blur);
+  const merge = document.createElementNS(ns, 'feMerge');
+  const mn1 = document.createElementNS(ns, 'feMergeNode');
+  mn1.setAttribute('in', 'blur');
+  merge.appendChild(mn1);
+  const mn2 = document.createElementNS(ns, 'feMergeNode');
+  mn2.setAttribute('in', 'SourceGraphic');
+  merge.appendChild(mn2);
+  filter.appendChild(merge);
+  defs.appendChild(filter);
+  svg.appendChild(defs);
+
+  const allSegments = [
+    { key: 'solarToHub', color: '#f59e0b' },
+    { key: 'hubToHouse', color: '#38bdf8' },
+    { key: 'hubToGrid', color: '#f43f5e' },
+    { key: 'hubToBattery', color: '#10b981' },
+  ];
+
+  allSegments.forEach(seg => {
+    const d = buildBezierPath(geo[seg.key]);
+    const path = document.createElementNS(ns, 'path');
+    path.setAttribute('d', d);
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', seg.color);
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-opacity', '0.06');
+    path.setAttribute('stroke-linecap', 'round');
+    svg.appendChild(path);
+  });
+
+  const flows = computeFlows(pv, load, grid, batt);
+  currentFlowState = [];
+
+  flows.forEach(flow => {
+    const seg1key = flow.segments[0];
+    const seg2key = flow.segments[1];
+    const seg1 = geo[seg1key];
+    const seg2 = geo[seg2key];
+
+    let pathPoints;
+    if (flow.direction === 'forward') {
+      pathPoints = { seg1, seg2, rev1: false, rev2: false };
+    } else {
+      pathPoints = { seg1, seg2, rev1: true, rev2: false };
+    }
+
+    const d1 = pathPoints.rev1 ? reverseBezierPath(seg1) : buildBezierPath(seg1);
+    const d2 = pathPoints.rev2 ? reverseBezierPath(seg2) : buildBezierPath(seg2);
+
+    [d1, d2].forEach(d => {
+      const glowPath = document.createElementNS(ns, 'path');
+      glowPath.setAttribute('d', d);
+      glowPath.setAttribute('fill', 'none');
+      glowPath.setAttribute('stroke', flow.color);
+      glowPath.setAttribute('stroke-width', '8');
+      glowPath.setAttribute('stroke-opacity', '0.12');
+      glowPath.setAttribute('stroke-linecap', 'round');
+      svg.appendChild(glowPath);
+
+      const mainPath = document.createElementNS(ns, 'path');
+      mainPath.setAttribute('d', d);
+      mainPath.setAttribute('fill', 'none');
+      mainPath.setAttribute('stroke', flow.color);
+      mainPath.setAttribute('stroke-width', '2.5');
+      mainPath.setAttribute('stroke-opacity', '0.7');
+      mainPath.setAttribute('stroke-linecap', 'round');
+      svg.appendChild(mainPath);
+    });
+
+    const speed = Math.max(1.5, 5 - (flow.value / 800));
+    currentFlowState.push({
+      seg1: pathPoints.rev1 ? { start: seg1.end, cp1: seg1.cp2, cp2: seg1.cp1, end: seg1.start } : seg1,
+      seg2: pathPoints.rev2 ? { start: seg2.end, cp1: seg2.cp2, cp2: seg2.cp1, end: seg2.start } : seg2,
+      color: flow.color,
+      speed,
+      value: flow.value,
+    });
+  });
+
+  if (!animationFrameId) {
+    startDotAnimation();
+  }
+}
+
+// ============================
+// Animated dots
+// ============================
+let dotPhases = {};
+let lastAnimTime = 0;
+
+function startDotAnimation() {
+  lastAnimTime = performance.now();
+  animationFrameId = requestAnimationFrame(animateDots);
+}
+
+function animateDots(timestamp) {
+  const dt = (timestamp - lastAnimTime) / 1000;
+  lastAnimTime = timestamp;
+
+  const svg = document.getElementById('flowSvg');
+  if (!svg) return;
+
+  svg.querySelectorAll('.flow-dot').forEach(el => el.remove());
+
+  const ns = 'http://www.w3.org/2000/svg';
+
+  currentFlowState.forEach((flow, idx) => {
+    const key = idx;
+    if (!dotPhases[key]) dotPhases[key] = Math.random();
+    dotPhases[key] = (dotPhases[key] + dt / flow.speed) % 1;
+
+    const numDots = Math.max(1, Math.min(3, Math.ceil(flow.value / 500)));
+
+    for (let d = 0; d < numDots; d++) {
+      const phase = (dotPhases[key] + d / numDots) % 1;
+
+      let pos;
+      if (phase < 0.5) {
+        pos = bezierPoint(flow.seg1, phase * 2);
+      } else {
+        pos = bezierPoint(flow.seg2, (phase - 0.5) * 2);
+      }
+
+      const circle = document.createElementNS(ns, 'circle');
+      circle.setAttribute('cx', pos.x);
+      circle.setAttribute('cy', pos.y);
+      circle.setAttribute('r', '4');
+      circle.setAttribute('fill', flow.color);
+      circle.setAttribute('class', 'flow-dot');
+      circle.setAttribute('filter', 'url(#glow)');
+      circle.setAttribute('opacity', '0.9');
+      svg.appendChild(circle);
+
+      let trailPhase;
+      if (phase < 0.5) {
+        trailPhase = Math.max(0, phase - 0.03);
+      } else {
+        trailPhase = Math.max(0.5, phase - 0.03);
+      }
+      let trailPos;
+      if (trailPhase < 0.5) {
+        trailPos = bezierPoint(flow.seg1, trailPhase * 2);
+      } else {
+        trailPos = bezierPoint(flow.seg2, (trailPhase - 0.5) * 2);
+      }
+      const trail = document.createElementNS(ns, 'circle');
+      trail.setAttribute('cx', trailPos.x);
+      trail.setAttribute('cy', trailPos.y);
+      trail.setAttribute('r', '2.5');
+      trail.setAttribute('fill', flow.color);
+      trail.setAttribute('class', 'flow-dot');
+      trail.setAttribute('opacity', '0.4');
+      svg.appendChild(trail);
+    }
+  });
+
+  animationFrameId = requestAnimationFrame(animateDots);
+}
+
+// ============================
+// UI Update
+// ============================
+function updateUI() {
+  const pv = num(state.pvPower);
+  const load = num(state.loadPower);
+  const grid = num(state.gridPower);
+  const batt = num(state.batteryPower);
+  const soc = num(state.batterySOC);
+
+  // Node values
+  setText('pvPower', pv);
+  setText('loadPower', load);
+  setText('batteryPower', Math.abs(batt));
+  setText('batterySOC', soc + '%');
+
+  const pv1 = num(state.pv1Power);
+  const pv2 = num(state.pv2Power);
+  setText('pvDetail', 'PV1: ' + pv1 + ' W · PV2: ' + pv2 + ' W');
+  setText('pv1Power', pv1 + ' W');
+  setText('pv2Power', pv2 + ' W');
+  setText('pv1Voltage', num(state.pv1Voltage, 1));
+  setText('pv2Voltage', num(state.pv2Voltage, 1));
+  setText('pv1Current', num(state.pv1Current, 1));
+  setText('pv2Current', num(state.pv2Current, 1));
+  const maxPv = Math.max(pv1, pv2, 1);
+  document.getElementById('pv1Bar').style.width = (pv1 / maxPv * 100) + '%';
+  document.getElementById('pv2Bar').style.width = (pv2 / maxPv * 100) + '%';
+
+  // Node activity states
+  const nodeSolar = document.getElementById('nodeSolar');
+  const nodeHouse = document.getElementById('nodeHouse');
+  const nodeGrid = document.getElementById('nodeGrid');
+  const nodeBattery = document.getElementById('nodeBattery');
+
+  nodeSolar.classList.toggle('active', pv > FLOW_THRESHOLD);
+  nodeSolar.classList.toggle('node-inactive', pv <= FLOW_THRESHOLD);
+  nodeHouse.classList.toggle('active', load > FLOW_THRESHOLD);
+
+  const absGrid = Math.abs(grid);
+  setText('gridPower', absGrid);
+  if (grid < -FLOW_THRESHOLD) {
+    nodeGrid.classList.add('exporting', 'active');
+    nodeGrid.classList.remove('node-inactive');
+    setText('gridLabel', 'Rede');
+    setText('gridDetail', 'A exportar');
+  } else if (grid > FLOW_THRESHOLD) {
+    nodeGrid.classList.remove('exporting', 'node-inactive');
+    nodeGrid.classList.add('active');
+    setText('gridLabel', 'Rede');
+    setText('gridDetail', 'A importar');
+  } else {
+    nodeGrid.classList.remove('exporting', 'active');
+    nodeGrid.classList.add('node-inactive');
+    setText('gridLabel', 'Rede');
+    setText('gridDetail', '');
+  }
+
+  const battBar = document.getElementById('batteryBar');
+  battBar.style.width = soc + '%';
+  if (soc > 60) battBar.style.background = 'linear-gradient(90deg, #10b981, #34d399)';
+  else if (soc > 25) battBar.style.background = 'linear-gradient(90deg, #eab308, #fbbf24)';
+  else battBar.style.background = 'linear-gradient(90deg, #f43f5e, #fb7185)';
+
+  if (batt > FLOW_THRESHOLD) {
+    setText('batteryDetail', 'A carregar');
+    nodeBattery.classList.add('active');
+    nodeBattery.classList.remove('node-inactive');
+  } else if (batt < -FLOW_THRESHOLD) {
+    setText('batteryDetail', 'A descarregar');
+    nodeBattery.classList.add('active');
+    nodeBattery.classList.remove('node-inactive');
+  } else {
+    const temp = num(state.batteryTemp, 1);
+    setText('batteryDetail', temp > 0 ? temp + ' °C' : 'Em espera');
+    nodeBattery.classList.remove('active');
+    nodeBattery.classList.toggle('node-inactive', Math.abs(batt) <= FLOW_THRESHOLD);
+  }
+
+  // Stats
+  setText('dailyProd', num(state.dailyProd, 1));
+  setText('dailyLoad', num(state.dailyLoad, 1));
+  setText('dailyImport', num(state.dailyImport, 1));
+  setText('dailyExport', num(state.dailyExport, 1));
+  setText('selfConsumption', num(state.selfConsumption, 1));
+  setText('selfSufficiency', num(state.selfSufficiency, 1));
+  setText('dailySavings', num(state.dailySavings, 2));
+  setText('dailyCost', num(state.dailyCost, 2));
+
+  // Autonomy
+  updateAutonomy(soc, load);
+
+  // Cost comparison
+  const costWithout = num(state.costWithoutSolar, 2);
+  const costReal = num(state.dailyCost, 2);
+  const avoided = num(state.avoidedCost, 2);
+  setText('costWithout', costWithout.toFixed(2));
+  setText('costReal', costReal.toFixed(2));
+  setText('costSaved', avoided.toFixed(2));
+
+  // Header badges
+  const tariff = state.tariffPeriod || '--';
+  const rate = num(state.currentRate, 4);
+  document.getElementById('tariffBadge').textContent = tariff + ' · ' + rate + ' €/kWh';
+
+  const invStatus = state.inverterStatus || 'unknown';
+  const badge = document.getElementById('statusBadge');
+  if (invStatus === 'normal') {
+    badge.textContent = 'ONLINE';
+    badge.className = 'badge badge-online';
+  } else {
+    badge.textContent = invStatus.toUpperCase();
+    badge.className = 'badge badge-offline';
+  }
+
+  // Donut chart
+  const dailyProdKwh = num(state.dailyProd, 2);
+  const dailyExportKwh = num(state.dailyExport, 2);
+  const dailyBattDischKwh = num(state.dailyBatteryDischarge, 2);
+  const dailyImportKwh = num(state.dailyImport, 2);
+  const solarSelfConsumed = Math.max(0, dailyProdKwh - dailyExportKwh);
+  setText('donutSolarVal', solarSelfConsumed.toFixed(1));
+  setText('donutBattVal', dailyBattDischKwh.toFixed(1));
+  setText('donutGridVal', dailyImportKwh.toFixed(1));
+  drawDonut(solarSelfConsumed, dailyBattDischKwh, dailyImportKwh);
+
+  // Tesla cards
+  updateTeslaCard(1);
+  updateTeslaCard(2);
+
+  // Monthly totals
+  setText('monthlyProd', num(state.monthlyProd, 1));
+  setText('monthlyConsumption', num(state.monthlyConsumption, 1));
+  setText('monthlyImport', num(state.monthlyImport, 1));
+  setText('monthlyExport', num(state.monthlyExport, 1));
+
+  // Peak production
+  updatePeak(pv);
+
+  // Update flow diagram
+  updateFlowDiagram(pv, load, grid, batt);
+}
+
+// ============================
+// Clock + tariff countdown
+// ============================
+function updateClock() {
+  const now = new Date();
+  const opts = { weekday: 'long', hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Lisbon' };
+  const formatted = now.toLocaleDateString('pt-PT', opts);
+  setText('headerTime', formatted.charAt(0).toUpperCase() + formatted.slice(1));
+  updateTariffCountdown();
+}
+
+// ============================
+// Data fetching — WebSocket (primary) + REST (fallback/initial)
+// ============================
+const HA_TOKEN = '%%HA_TOKEN%%';
+let ws = null;
+let wsMessageId = 1;
+let wsConnected = false;
+let wsReconnectTimer = null;
+const entityIdToKey = {};
+for (const [key, entityId] of Object.entries(ENTITIES)) {
+  entityIdToKey[entityId] = key;
+}
+
+function connectWebSocket() {
+  if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) return;
+
+  const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  ws = new WebSocket(proto + '//' + location.host + '/ha-ws');
+
+  ws.onopen = () => {
+    console.log('WS connected');
+  };
+
+  ws.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+
+    if (msg.type === 'auth_required') {
+      ws.send(JSON.stringify({ type: 'auth', access_token: HA_TOKEN }));
+    }
+
+    else if (msg.type === 'auth_ok') {
+      wsConnected = true;
+      console.log('WS authenticated');
+      ws.send(JSON.stringify({ id: wsMessageId++, type: 'subscribe_events', event_type: 'state_changed' }));
+    }
+
+    else if (msg.type === 'auth_invalid') {
+      console.error('WS auth failed, falling back to REST');
+      wsConnected = false;
+      ws.close();
+      startRestPolling();
+    }
+
+    else if (msg.type === 'event' && msg.event && msg.event.data) {
+      const d = msg.event.data;
+      const entityId = d.entity_id;
+      const key = entityIdToKey[entityId];
+      if (key && d.new_state) {
+        state[key] = d.new_state.state;
+        updateUI();
+      }
+    }
+  };
+
+  ws.onclose = () => {
+    wsConnected = false;
+    console.log('WS closed, reconnecting in 5s...');
+    clearTimeout(wsReconnectTimer);
+    wsReconnectTimer = setTimeout(connectWebSocket, 5000);
+  };
+
+  ws.onerror = (e) => {
+    console.error('WS error:', e);
+    ws.close();
+  };
+}
+
+async function fetchStates() {
+  try {
+    const resp = await fetch('/ha-api/states');
+    if (!resp.ok) throw new Error(resp.status);
+    const states = await resp.json();
+    const lookup = {};
+    states.forEach(s => lookup[s.entity_id] = s.state);
+    for (const [key, entityId] of Object.entries(ENTITIES)) {
+      if (lookup[entityId] !== undefined) state[key] = lookup[entityId];
+    }
+    updateUI();
+  } catch (e) {
+    console.error('Fetch error:', e);
+    const badge = document.getElementById('statusBadge');
+    badge.textContent = 'OFFLINE';
+    badge.className = 'badge badge-offline';
+  }
+}
+
+let restPollTimer = null;
+function startRestPolling() {
+  if (restPollTimer) return;
+  restPollTimer = setInterval(fetchStates, REFRESH_INTERVAL);
+}
+
+async function fetchHistory() {
+  try {
+    const now = new Date();
+    const start = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
+    const entities = 'sensor.deye_inverter_mqtt_dc_total_power,sensor.deye_inverter_mqtt_total_load_power';
+    const resp = await fetch('/ha-api/history/period/' + start + '?filter_entity_id=' + entities + '&minimal_response&no_attributes&significant_changes_only');
+    if (!resp.ok) return;
+    const data = await resp.json();
+    if (data.length < 2) return;
+
+    const solarHist = data[0] || [];
+    const loadHist = data[1] || [];
+
+    const buckets = {};
+    const process = (arr, key) => {
+      arr.forEach(point => {
+        const d = new Date(point.last_changed || point.last_updated);
+        const h = d.getHours();
+        const m = d.getMinutes() < 30 ? '00' : '30';
+        const bucket = String(h).padStart(2, '0') + ':' + m;
+        if (!buckets[bucket]) buckets[bucket] = { solar: [], load: [] };
+        const v = parseFloat(point.state);
+        if (!isNaN(v) && v >= 0) buckets[bucket][key].push(v);
+      });
+    };
+    process(solarHist, 'solar');
+    process(loadHist, 'load');
+
+    const labels = [];
+    const solar = [];
+    const load = [];
+    const sortedKeys = Object.keys(buckets).sort();
+    sortedKeys.forEach(k => {
+      labels.push(k);
+      const s = buckets[k].solar;
+      const l = buckets[k].load;
+      solar.push(s.length ? Math.max(...s) / 1000 : 0);
+      load.push(l.length ? Math.max(...l) / 1000 : 0);
+    });
+    historyData = { solar, load, labels };
+    drawChart();
+  } catch (e) {
+    console.error('History error:', e);
+  }
+}
+
+// ============================
+// Chart
+// ============================
+function drawChart() {
+  const canvas = document.getElementById('historyChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  ctx.scale(dpr, dpr);
+  const W = rect.width;
+  const H = rect.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const { solar, load, labels } = historyData;
+  if (!solar.length) {
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.font = '12px Inter, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('A carregar dados...', W / 2, H / 2);
+    return;
+  }
+
+  const maxVal = Math.max(...solar, ...load, 0.5);
+  const padL = 38, padR = 12, padT = 12, padB = 28;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+  const n = solar.length;
+  const dx = chartW / Math.max(n - 1, 1);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  const gridSteps = 4;
+  for (let i = 0; i <= gridSteps; i++) {
+    const y = padT + chartH * (1 - i / gridSteps);
+    ctx.beginPath();
+    ctx.moveTo(padL, y);
+    ctx.lineTo(W - padR, y);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.2)';
+    ctx.font = '9px Inter, sans-serif';
+    ctx.textAlign = 'right';
+    ctx.fillText((maxVal * i / gridSteps).toFixed(1), padL - 6, y + 3);
+  }
+
+  ctx.fillStyle = 'rgba(255,255,255,0.2)';
+  ctx.font = '9px Inter, sans-serif';
+  ctx.textAlign = 'center';
+  const labelStep = Math.max(1, Math.floor(n / 8));
+  for (let i = 0; i < n; i += labelStep) {
+    ctx.fillText(labels[i], padL + i * dx, H - 6);
+  }
+
+  function drawSmoothLine(data, strokeColor, fillColor, lineWidth) {
+    if (data.length < 2) return;
+    ctx.beginPath();
+    ctx.moveTo(padL, padT + chartH * (1 - data[0] / maxVal));
+    for (let i = 1; i < data.length; i++) {
+      const x0 = padL + (i - 1) * dx;
+      const y0 = padT + chartH * (1 - data[i - 1] / maxVal);
+      const x1 = padL + i * dx;
+      const y1 = padT + chartH * (1 - data[i] / maxVal);
+      const cpx = (x0 + x1) / 2;
+      ctx.bezierCurveTo(cpx, y0, cpx, y1, x1, y1);
+    }
+    ctx.strokeStyle = strokeColor;
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+
+    if (fillColor) {
+      const lastX = padL + (data.length - 1) * dx;
+      ctx.lineTo(lastX, padT + chartH);
+      ctx.lineTo(padL, padT + chartH);
+      ctx.closePath();
+
+      const gradient = ctx.createLinearGradient(0, padT, 0, padT + chartH);
+      gradient.addColorStop(0, fillColor);
+      gradient.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = gradient;
+      ctx.fill();
+    }
+  }
+
+  drawSmoothLine(solar, '#f59e0b', 'rgba(245,158,11,0.12)', 2);
+  drawSmoothLine(load, '#38bdf8', 'rgba(56,189,248,0.06)', 2);
+}
+
+// ============================
+// Init
+// ============================
+function handleResize() {
+  dotPhases = {};
+  drawChart();
+  const pv = num(state.pvPower);
+  const load = num(state.loadPower);
+  const grid = num(state.gridPower);
+  const batt = num(state.batteryPower);
+  updateFlowDiagram(pv, load, grid, batt);
+}
+
+updateClock();
+setInterval(updateClock, 30000);
+
+// Initial REST fetch for full state, then switch to WebSocket for real-time
+fetchStates().then(() => {
+  connectWebSocket();
+});
+
+fetchHistory();
+setInterval(fetchHistory, HISTORY_INTERVAL);
+window.addEventListener('resize', handleResize);
+
+requestAnimationFrame(() => {
+  drawChart();
+});
+</script>
+</body>
+</html>

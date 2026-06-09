@@ -2,19 +2,22 @@ global:
   scrape_interval: 15s
 
 scrape_configs:
-  - job_name: 'prometheus'
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["localhost:9090"]
 
-  - job_name: 'cadvisor'
+  - job_name: "cadvisor"
     static_configs:
-      - targets: ['cadvisor:8080']
+      - targets: ["cadvisor:8080"]
 
-  - job_name: 'teslamate'
+  - job_name: "node-exporter"
     static_configs:
-      - targets: ['teslamate_model3:4000', 'teslamate_modely:4000']
+      - targets: ["node-exporter:9100"]
 
-  - job_name: 'node-exporter'
+  - job_name: "homeassistant"
+    scrape_interval: 30s
+    metrics_path: /api/prometheus
+    bearer_token_file: /prometheus/ha_token
     static_configs:
-      - targets: ['node-exporter:9100']
+      - targets: ["homeassistant:8123"]
 

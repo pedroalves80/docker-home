@@ -73,6 +73,12 @@ create_directories() {
         "data/model3/postgres"
         "data/modely/postgres"
         "data/portainer"
+        "data/paperless/consume"
+        "data/paperless/data"
+        "data/paperless/export"
+        "data/paperless/media"
+        "data/paperless/postgres"
+        "data/paperless/redis"
         "data/pricebuddy/mysql"
         "data/pricebuddy/storage"
         "data/prometheus"
@@ -157,6 +163,12 @@ set_permissions() {
     # Prometheus data directory
     if [ -d "data/prometheus" ]; then
         chmod -R 777 data/prometheus 2>/dev/null || true
+    fi
+
+    # Paperless runs as UID/GID 1000 by default in this compose stack.
+    if [ -d "data/paperless" ]; then
+        sudo chown -R 1000:1000 data/paperless/consume data/paperless/data data/paperless/export data/paperless/media 2>/dev/null || \
+            chown -R 1000:1000 data/paperless/consume data/paperless/data data/paperless/export data/paperless/media 2>/dev/null || true
     fi
 
     # Certificate permissions
@@ -290,6 +302,10 @@ EOF
         icon: mdi-gift-outline
         href: https://wishlist.home.lan
         description: Buy Later List
+    - Paperless:
+        icon: paperless-ngx.png
+        href: https://paperless.home.lan
+        description: Document Archive
 EOF
         print_success "Created homepage services.yaml"
     fi
