@@ -19,8 +19,10 @@ A comprehensive Docker-based homelab stack featuring home automation, monitoring
 | **Node Exporter** | `https://node-exporter.home.lan` | System metrics |
 | **TeslaMate Model 3** | `https://teslamate-model3.home.lan` | Tesla Model 3 tracking |
 | **TeslaMate Model Y** | `https://teslamate-modely.home.lan` | Tesla Model Y tracking |
+| **Deye MQTT** | N/A (background service) | Solar inverter metrics bridge |
 | **PriceBuddy** | `https://pricebuddy.home.lan` | Price tracking & wishlist |
 | **Wishlist** | `https://wishlist.home.lan` | Buy-later wishlist |
+| **Paperless-ngx** | `https://paperless.home.lan` | Document archive with OCR |
 | **Apprise** | `https://apprise.home.lan` | Notification gateway |
 | **Dozzle** | `https://dozzle.home.lan` | Real-time container logs |
 | **Authelia** | `https://auth.home.lan` | SSO & 2FA gateway |
@@ -67,6 +69,11 @@ cp .env.example .env
 | `VAULTWARDEN_ADMIN_TOKEN` | Vaultwarden admin panel token |
 | `TS_AUTHKEY` | Tailscale auth key (from Tailscale admin console) |
 | `PRICEBUDDY_APP_KEY` | PriceBuddy Laravel app key |
+| `PAPERLESS_SECRET_KEY` | Paperless session/signing secret |
+| `PAPERLESS_DB_PASS` | Paperless PostgreSQL password |
+| `PAPERLESS_ADMIN_PASSWORD` | Initial Paperless admin password |
+| `DEYE_LOGGER_IP_ADDRESS` | Deye/Solarman logger IP or DNS name |
+| `DEYE_LOGGER_SERIAL_NUMBER` | Deye/Solarman logger serial number |
 | `AUTHELIA_SESSION_SECRET` | Authelia session encryption key |
 | `AUTHELIA_STORAGE_ENCRYPTION_KEY` | Authelia storage encryption key |
 | `HOMEPAGE_VAR_*` | API keys for Homepage integrations |
@@ -145,6 +152,7 @@ data/
 ├── homeassistant/    # Home Assistant configuration
 ├── model3/postgres/  # TeslaMate Model 3 database
 ├── modely/postgres/  # TeslaMate Model Y database
+├── paperless/        # Paperless documents, metadata, and database
 ├── portainer/        # Portainer data
 ├── pricebuddy/       # PriceBuddy MySQL & storage
 ├── prometheus/       # Prometheus metrics data
@@ -181,21 +189,23 @@ docker compose ps
 Automated backups run daily at 3am to a USB drive mounted at `/mnt/backups`.
 
 **What's backed up:**
-- `./data/` - Service data, excluding live TeslaMate PostgreSQL directories
+- `./data/` - Service data, excluding live TeslaMate and Paperless PostgreSQL directories
 - Recovery config under `_repo/` inside each backup:
   - `.env`
   - `docker-compose.yml`
   - `backup.sh` and `backup-status.sh`
   - `setup.sh`
   - `configs/` including Traefik certificates and Authelia users
-- TeslaMate PostgreSQL dumps under `_db_dumps/`:
+- PostgreSQL dumps under `_db_dumps/`:
   - `teslamate_model3.sql.gz`
   - `teslamate_modely.sql.gz`
+  - `paperless.sql.gz`
 
 **Backup features:**
 - Briefly stops SQLite-backed containers (Vaultwarden, Home Assistant, Wishlist) only while their own data directories are copied
+- Briefly stops Paperless while its document files are copied and its PostgreSQL database is dumped
 - Leaves TeslaMate running and uses PostgreSQL dumps, so active charging sessions are not split by the 3am backup
-- Excludes live TeslaMate PostgreSQL data directories from snapshots; restore TeslaMate from `_db_dumps/`
+- Excludes live TeslaMate and Paperless PostgreSQL data directories from snapshots; restore them from `_db_dumps/`
 - Uses rsync with hard links for space-efficient snapshots
 - Keeps 7 days of backups, auto-removes older ones
 
@@ -232,6 +242,14 @@ Use this from an n8n weekly SSH node and send `stdout` to Telegram with parse mo
 
 Use this from an n8n SSH node to catch charge sessions split around the 3am backup window, or stale open charging processes. Alert when the returned top-level `status` is not `ok`.
 
+**Deye solar MQTT bridge:**
+```bash
+docker compose logs -f deye-mqtt
+docker compose exec mosquitto mosquitto_sub -C 10 -t 'deye/#'
+```
+
+The bridge reads the Deye/Solarman logger at `DEYE_LOGGER_IP_ADDRESS` and publishes read-only metrics to Mosquitto under `DEYE_MQTT_TOPIC_PREFIX`. Control/write features are disabled in Compose; enable them only after validating the readings and inverter behavior.
+
 **Restore from backup:**
 ```bash
 docker compose down
@@ -244,7 +262,7 @@ To restore repo config and secrets as well:
 sudo rsync -av /mnt/backups/backup-YYYY-MM-DD_HH-MM/_repo/ ~/docker-home/
 ```
 
-TeslaMate database dumps are stored in `_db_dumps/` inside each backup snapshot. Use those dumps for TeslaMate restores instead of relying on a live rsync copy of the PostgreSQL data directory.
+TeslaMate and Paperless database dumps are stored in `_db_dumps/` inside each backup snapshot. Use those dumps for restores instead of relying on a live rsync copy of PostgreSQL data directories.
 
 ## Troubleshooting
 

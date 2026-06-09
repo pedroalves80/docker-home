@@ -10,10 +10,12 @@ BACKUP_DIR="/mnt/backups"
 SOURCE_DIR="$HOME/docker-home"
 DATE=$(date +%Y-%m-%d_%H-%M)
 KEEP_DAYS=7
+PAPERLESS_CONTAINER="paperless"
 SNAPSHOT_DIR="$BACKUP_DIR/backup-$DATE"
 REPO_BACKUP_DIR="$BACKUP_DIR/latest/_repo"
 DB_DUMP_DIR="$BACKUP_DIR/latest/_db_dumps"
 CONTAINERS_STOPPED=0
+PAPERLESS_STOPPED=0
 
 CRITICAL_CONTAINERS=(
     "vaultwarden"
@@ -26,15 +28,27 @@ POSTGRES_DUMPS=(
     "teslamate_modely_db:teslamate_modely.sql.gz"
 )
 
+PAPERLESS_POSTGRES_DUMPS=(
+    "paperless-db:paperless.sql.gz"
+)
+
 LIVE_POSTGRES_BACKUP_DIRS=(
     "model3/postgres"
     "modely/postgres"
+    "paperless/postgres"
 )
 
 STOPPED_DATA_DIRS=(
     "homeassistant"
     "vaultwarden"
     "wishlist"
+)
+
+PAPERLESS_DATA_DIRS=(
+    "paperless/consume"
+    "paperless/data"
+    "paperless/export"
+    "paperless/media"
 )
 
 CONFIG_FILES=(
@@ -52,6 +66,11 @@ CONFIG_FILES=(
 )
 
 restart_containers() {
+    if [ "$PAPERLESS_STOPPED" -eq 1 ]; then
+        echo "Restarting Paperless..."
+        docker compose start "$PAPERLESS_CONTAINER"
+    fi
+
     if [ "$CONTAINERS_STOPPED" -eq 1 ]; then
         echo "Restarting containers..."
         docker compose start "${CRITICAL_CONTAINERS[@]}"
@@ -100,6 +119,15 @@ sync_stopped_data_dirs() {
     done
 }
 
+sync_paperless_data_dirs() {
+    local data_path=""
+
+    for data_path in "${PAPERLESS_DATA_DIRS[@]}"; do
+        sudo mkdir -p "$BACKUP_DIR/latest/$data_path"
+        sudo rsync -av --delete "$SOURCE_DIR/data/$data_path/" "$BACKUP_DIR/latest/$data_path/"
+    done
+}
+
 trap restart_containers EXIT
 
 # Check if backup drive is mounted
@@ -119,6 +147,7 @@ sudo rsync -av --delete \
     --exclude "homeassistant/" \
     --exclude "vaultwarden/" \
     --exclude "wishlist/" \
+    --exclude "paperless/" \
     --exclude "model3/postgres/" \
     --exclude "modely/postgres/" \
     --exclude "*/logs/*" \
@@ -135,8 +164,23 @@ sync_stopped_data_dirs
 docker compose start "${CRITICAL_CONTAINERS[@]}"
 CONTAINERS_STOPPED=0
 
-# Keep consistent database exports for services backed by live PostgreSQL.
 sudo mkdir -p "$DB_DUMP_DIR"
+
+# Keep Paperless document files and metadata in step with each other.
+if is_service_running "$PAPERLESS_CONTAINER"; then
+    docker compose stop "$PAPERLESS_CONTAINER"
+    PAPERLESS_STOPPED=1
+    sync_paperless_data_dirs
+    for dump_config in "${PAPERLESS_POSTGRES_DUMPS[@]}"; do
+        dump_postgres_db "${dump_config%%:*}" "${dump_config#*:}"
+    done
+    docker compose start "$PAPERLESS_CONTAINER"
+    PAPERLESS_STOPPED=0
+else
+    echo "Skipping Paperless stopped backup; service is not running."
+fi
+
+# Keep consistent database exports for services backed by live PostgreSQL.
 for dump_config in "${POSTGRES_DUMPS[@]}"; do
     dump_postgres_db "${dump_config%%:*}" "${dump_config#*:}"
 done
