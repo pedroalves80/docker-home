@@ -98,6 +98,8 @@ pages:
             groups:
               - title: Quick Links
                 links:
+                  - title: Solar Dashboard
+                    url: https://solar.home.lan
                   - title: GitHub
                     url: https://github.com
                   - title: Tailscale
@@ -146,6 +148,15 @@ pages:
                   - title: n8n
                     url: https://n8n.home.lan
 
+              - title: Energy
+                links:
+                  - title: Solar Dashboard
+                    url: https://solar.home.lan
+                  - title: HA Energy
+                    url: https://homeassistant.home.lan/energy
+                  - title: Grafana Solar
+                    url: https://grafana.home.lan/d/ebbad274-dc12-4aa2-992b-78b9a1bebd71/solar-energy
+
               - title: Apps
                 links:
                   - title: Vaultwarden
@@ -154,6 +165,8 @@ pages:
                     url: https://pricebuddy.home.lan
                   - title: Wishlist
                     url: https://wishlist.home.lan
+                  - title: Paperless
+                    url: https://paperless.home.lan
                   - title: TeslaMate M3
                     url: https://teslamate-model3.home.lan
                   - title: TeslaMate MY
@@ -215,6 +228,12 @@ pages:
               - title: Wishlist
                 url: https://wishlist.home.lan
                 check-url: http://wishlist:3280
+              - title: Paperless
+                url: https://paperless.home.lan
+                check-url: http://paperless:8000
+              - title: Solar Dashboard
+                url: https://solar.home.lan
+                check-url: http://solar-dashboard:80
 
           - type: rss
             title: Self-Hosted News
@@ -236,3 +255,4 @@ pages:
               - home-assistant/core
               - dani-garcia/vaultwarden
               - cmintey/wishlist
+              - paperless-ngx/paperless-ngx

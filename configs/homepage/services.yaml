@@ -47,6 +47,13 @@
         server: local
         container: wishlist
 
+    - Paperless:
+        icon: paperless-ngx.png
+        href: https://paperless.home.lan
+        description: Document Archive
+        server: local
+        container: paperless
+
 - Vehicles:
     - Model 3:
         icon: si-tesla
