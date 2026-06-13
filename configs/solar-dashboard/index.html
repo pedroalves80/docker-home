@@ -51,7 +51,7 @@ body{
   box-shadow:0 4px 12px rgba(245,158,11,0.3);
 }
 .header-logo svg{width:22px;height:22px;fill:#fff}
-.header-title{font-size:17px;font-weight:700;letter-spacing:-0.3px}
+.header-title{font-size:17px;font-weight:700;letter-spacing:0}
 .header-sub{font-size:11px;color:var(--text-dim);margin-top:1px}
 .header-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .header-time{font-size:13px;color:var(--text-dim);font-weight:500}
@@ -101,8 +101,8 @@ body{
 }
 .node-icon-wrap{margin-bottom:6px;display:flex;justify-content:center}
 .node-icon-wrap svg{width:32px;height:32px;transition:filter 0.6s ease}
-.node-label{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;font-weight:600;color:var(--text-dim);margin-bottom:4px}
-.node-value{font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1.1;transition:color 0.4s ease}
+.node-label{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;font-weight:600;color:var(--text-dim);margin-bottom:4px;white-space:nowrap}
+.node-value{font-size:26px;font-weight:700;letter-spacing:0;line-height:1.1;transition:color 0.4s ease}
 .node-unit{font-size:13px;font-weight:400;opacity:0.5}
 .node-detail{font-size:10px;color:var(--text-muted);margin-top:3px}
 
@@ -157,9 +157,9 @@ body{
 .flow-svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
 
 /* ---- STATS GRID ---- */
-.stats-grid{
-  display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;
-}
+.stats-grid{display:grid;gap:12px;margin-bottom:20px}
+.stats-grid-daily{grid-template-columns:repeat(3,minmax(0,1fr))}
+.forecast-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
 .stat-card{
   background:var(--bg-card);border:1px solid var(--card-border);
   border-radius:14px;padding:14px 12px;
@@ -168,8 +168,9 @@ body{
 }
 .stat-card:hover{border-color:var(--card-border-hover)}
 .stat-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px;font-weight:600}
-.stat-value{font-size:22px;font-weight:700;letter-spacing:-0.5px;line-height:1.2}
+.stat-value{font-size:22px;font-weight:700;letter-spacing:0;line-height:1.2}
 .stat-unit{font-size:11px;font-weight:400;opacity:0.5}
+.stat-sub{font-size:10px;color:var(--text-muted);font-weight:500;margin-top:4px;line-height:1.35;min-height:14px}
 
 /* ---- COST COMPARISON ---- */
 .cost-card{
@@ -182,7 +183,7 @@ body{
 }
 .cost-item{display:flex;flex-direction:column;align-items:center;gap:2px}
 .cost-item-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.8px;font-weight:600}
-.cost-item-value{font-size:20px;font-weight:700;letter-spacing:-0.3px}
+.cost-item-value{font-size:20px;font-weight:700;letter-spacing:0}
 .cost-sep{width:1px;height:32px;background:rgba(255,255,255,0.08)}
 
 /* ---- ENERGY SOURCE DONUT ---- */
@@ -199,14 +200,14 @@ body{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   text-align:center;pointer-events:none;
 }
-.donut-center-pct{font-size:22px;font-weight:700;color:var(--text);letter-spacing:-0.5px}
+.donut-center-pct{font-size:22px;font-weight:700;color:var(--text);letter-spacing:0}
 .donut-center-sub{font-size:10px;color:var(--text-muted);margin-top:1px}
 .donut-legend{display:flex;flex-direction:column;gap:10px}
 .donut-legend-item{display:flex;align-items:center;gap:10px}
 .donut-legend-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 .donut-legend-info{display:flex;flex-direction:column;gap:1px}
 .donut-legend-label{font-size:11px;color:var(--text-dim);font-weight:600}
-.donut-legend-val{font-size:13px;font-weight:700;color:var(--text);letter-spacing:-0.3px}
+.donut-legend-val{font-size:13px;font-weight:700;color:var(--text);letter-spacing:0}
 
 /* ---- TESLA CARDS ---- */
 .section-title{font-size:11px;letter-spacing:1.8px;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:12px}
@@ -221,12 +222,12 @@ body{
 .tesla-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
 .tesla-name-row{display:flex;align-items:center;gap:8px}
 .tesla-icon svg{width:24px;height:24px}
-.tesla-name{font-size:13px;font-weight:700;letter-spacing:-0.2px}
+.tesla-name{font-size:13px;font-weight:700;letter-spacing:0}
 .tesla-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .badge-home{background:rgba(56,189,248,0.12);color:#38bdf8;border:1px solid rgba(56,189,248,0.25);font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600}
 .badge-charging{background:rgba(16,185,129,0.12);color:#34d399;border:1px solid rgba(16,185,129,0.25);font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600}
 .tesla-batt-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.tesla-batt-pct{font-size:28px;font-weight:700;letter-spacing:-1px;line-height:1}
+.tesla-batt-pct{font-size:28px;font-weight:700;letter-spacing:0;line-height:1}
 .tesla-batt-bar-wrap{flex:1;height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden}
 .tesla-batt-bar{height:100%;border-radius:3px;transition:width 1s ease,background 1s ease}
 .tesla-details{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}
@@ -246,7 +247,7 @@ body{
 }
 .pv-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
 .pv-label{font-size:11px;color:var(--text-dim);font-weight:600;letter-spacing:0.3px}
-.pv-power{font-size:20px;font-weight:700;color:var(--solar);letter-spacing:-0.3px}
+.pv-power{font-size:20px;font-weight:700;color:var(--solar);letter-spacing:0}
 .pv-bar-wrap{height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;margin-bottom:8px}
 .pv-bar{height:100%;background:linear-gradient(90deg,var(--solar),#fbbf24);border-radius:2px;transition:width 1s ease}
 .pv-details{display:flex;justify-content:space-between;font-size:10px;color:var(--text-muted);font-weight:500}
@@ -265,7 +266,7 @@ body{
 }
 .peak-icon svg{width:18px;height:18px;fill:var(--solar)}
 .peak-label{font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.8px;font-weight:600;margin-bottom:3px}
-.peak-value{font-size:18px;font-weight:700;color:var(--solar);letter-spacing:-0.3px}
+.peak-value{font-size:18px;font-weight:700;color:var(--solar);letter-spacing:0}
 .peak-time{font-size:11px;color:var(--text-muted);margin-left:4px;font-weight:500}
 
 /* ---- CHART ---- */
@@ -275,11 +276,19 @@ body{
   backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
 .chart-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
-.chart-title{font-size:13px;font-weight:600;letter-spacing:-0.2px}
+.chart-title{font-size:13px;font-weight:600;letter-spacing:0}
 .chart-legend{display:flex;gap:16px}
 .chart-legend-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-dim);font-weight:500}
 .chart-legend-dot{width:8px;height:8px;border-radius:2px}
 .chart-canvas{width:100%;height:200px;display:block}
+.solar-mode-button{
+  margin-top:7px;padding:5px 10px;border-radius:10px;
+  border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.15);
+  color:var(--charger);font-size:9px;font-weight:700;cursor:pointer;letter-spacing:0;
+  min-width:76px;transition:background 0.2s ease,border-color 0.2s ease,color 0.2s ease,opacity 0.2s ease;
+}
+.solar-mode-button:disabled{cursor:wait;opacity:0.6}
+.forecast-grid .stat-value{font-size:20px}
 
 /* ---- RESPONSIVE ---- */
 @media(max-width:700px){
@@ -303,7 +312,9 @@ body{
   .flow-node-charger{left:80%;top:86%}
   .flow-node-house{left:14%}
   .flow-node-grid{left:86%}
-  .stats-grid{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stats-grid{gap:8px}
+  .stats-grid-daily,.forecast-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .forecast-grid .stat-card:last-child{grid-column:1 / -1}
   .stat-card{padding:12px 8px}
   .stat-value{font-size:18px}
   .stat-label{font-size:9px}
@@ -312,6 +323,8 @@ body{
   .cost-sep{display:none}
   .pv-row{grid-template-columns:1fr;gap:8px}
   .chart-canvas{height:160px}
+  .chart-header{align-items:flex-start;gap:8px;flex-direction:column}
+  .chart-legend{gap:10px;flex-wrap:wrap}
   .tesla-row{grid-template-columns:1fr;gap:8px}
   .donut-inner{flex-direction:column;gap:16px}
   .monthly-grid{grid-template-columns:repeat(2,1fr);gap:8px}
@@ -324,6 +337,7 @@ body{
   .node-icon-wrap svg{width:16px;height:16px}
   .node-label{font-size:7px}
   .node-detail{display:none}
+  .solar-mode-button{font-size:8px;min-width:62px;padding:4px 7px}
   .flow-hub{width:30px;height:30px}
   .flow-hub svg{width:12px;height:12px}
   .soc-bar-wrap{width:48px}
@@ -421,14 +435,14 @@ body{
           <div class="node-label">Carregador</div>
           <div class="node-value"><span id="chargerPower">0</span> <span class="node-unit" id="chargerUnit">W</span></div>
           <div class="node-detail" id="chargerDetail">Desligado</div>
-          <button id="solarModeBtn" onclick="toggleSolarMode()" style="margin-top:6px;padding:4px 10px;border-radius:10px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.15);color:var(--charger);font-size:9px;font-weight:600;cursor:pointer;letter-spacing:0.5px">AUTO: --</button>
+          <button id="solarModeBtn" class="solar-mode-button" type="button" aria-label="Alternar modo de carregamento solar">AUTO: --</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- STATS -->
-  <div class="stats-grid">
+  <div class="stats-grid stats-grid-daily">
     <div class="stat-card">
       <div class="stat-label">Produ&ccedil;&atilde;o</div>
       <div class="stat-value" style="color:var(--solar)"><span id="dailyProd">--</span> <span class="stat-unit">kWh</span></div>
@@ -492,7 +506,7 @@ body{
   </div>
 
   <!-- SOLAR FORECAST -->
-  <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+  <div class="stats-grid forecast-grid">
     <div class="stat-card">
       <div class="stat-label">Previs&atilde;o restante</div>
       <div class="stat-value" style="color:var(--solar)"><span id="forecastRemaining">--</span> <span class="stat-unit">kWh</span></div>
@@ -771,6 +785,11 @@ function num(v, decimals = 0) {
   return isNaN(n) ? 0 : Number(n.toFixed(decimals));
 }
 
+function fmt(v, decimals = 0, fallback = '--') {
+  const n = parseFloat(v);
+  return isNaN(n) ? fallback : n.toFixed(decimals);
+}
+
 function setText(id, val) {
   const el = document.getElementById(id);
   if (el && el.textContent !== String(val)) el.textContent = val;
@@ -784,15 +803,26 @@ function setDisplay(id, show) {
 async function toggleSolarMode() {
   const current = state.solarChargingMode === 'on';
   const service = current ? 'turn_off' : 'turn_on';
+  const nextLabel = current ? 'desligar' : 'ligar';
+  const ok = window.confirm('Queres mesmo ' + nextLabel + ' o modo AUTO de carregamento solar?');
+  if (!ok) return;
+  const btn = document.getElementById('solarModeBtn');
+  if (btn) btn.disabled = true;
   try {
-    await fetch('/ha-api/services/input_boolean/' + service, {
+    const resp = await fetch('/ha-api/services/input_boolean/' + service, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({entity_id: 'input_boolean.solar_charging_mode'})
     });
+    if (!resp.ok) throw new Error(resp.status);
     state.solarChargingMode = current ? 'off' : 'on';
     updateUI();
-  } catch(e) { console.error('Toggle failed:', e); }
+  } catch(e) {
+    console.error('Toggle failed:', e);
+    window.alert('Nao consegui alterar o modo AUTO. Tenta novamente daqui a pouco.');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
 }
 
 // ============================
@@ -1425,7 +1455,7 @@ function updateUI() {
   setText('dailyCost', num(state.dailyCost, 2));
 
   // Autonomy
-  updateAutonomy(soc, load);
+  updateAutonomy(soc, houseOnly);
 
   // Cost comparison
   const costWithout = num(state.costWithoutSolar, 2);
@@ -1434,12 +1464,12 @@ function updateUI() {
   setText('costWithout', costWithout.toFixed(2));
   setText('costReal', costReal.toFixed(2));
   setText('costSaved', avoided.toFixed(2));
-  setText('roiRemaining', num(state.roiRemaining, 0));
-  setText('roiPercent', num(state.roiPercent, 1));
+  setText('roiRemaining', fmt(state.roiRemaining, 0));
+  setText('roiPercent', fmt(state.roiPercent, 1));
 
   // Forecast
-  setText('forecastRemaining', num(state.forecastRemaining, 1));
-  setText('forecastTomorrow', num(state.forecastTomorrow, 1));
+  setText('forecastRemaining', fmt(state.forecastRemaining, 1));
+  setText('forecastTomorrow', fmt(state.forecastTomorrow, 1));
   const dq = state.dayQuality || '--';
   const tq = state.tomorrowQuality || '--';
   const qualityEmoji = {'bom': '☀️', 'moderado': '⛅', 'fraco': '☁️'};
@@ -1455,7 +1485,7 @@ function updateUI() {
   const solarMode = state.solarChargingMode === 'on';
   const btn = document.getElementById('solarModeBtn');
   if (btn) {
-    btn.textContent = solarMode ? 'AUTO: ON' : 'AUTO: OFF';
+    btn.textContent = solarMode ? 'AUTO ON' : 'AUTO OFF';
     btn.style.background = solarMode ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)';
     btn.style.color = solarMode ? 'var(--battery)' : 'var(--grid-import)';
     btn.style.borderColor = solarMode ? 'rgba(16,185,129,0.4)' : 'rgba(244,63,94,0.4)';
@@ -1501,7 +1531,7 @@ function updateUI() {
   updatePeak(pv);
 
   // Update flow diagram
-  updateFlowDiagram(pv, load, grid, batt, chargerPow);
+  updateFlowDiagram(pv, houseOnly, grid, batt, chargerPow);
 }
 
 // ============================
@@ -1759,11 +1789,17 @@ function handleResize() {
   const grid = num(state.gridPower);
   const batt = num(state.batteryPower);
   const chargerPow = num(state.chargerPower);
-  updateFlowDiagram(pv, load, grid, batt, chargerPow);
+  const houseOnly = Math.max(0, load - chargerPow);
+  updateFlowDiagram(pv, houseOnly, grid, batt, chargerPow);
 }
 
 updateClock();
 setInterval(updateClock, 30000);
+
+const solarModeButton = document.getElementById('solarModeBtn');
+if (solarModeButton) {
+  solarModeButton.addEventListener('click', toggleSolarMode);
+}
 
 fetchStates();
 startRestPolling();
