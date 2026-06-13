@@ -10,7 +10,7 @@ server {
         rewrite ^/ha-api/(.*) /api/$1 break;
         proxy_pass $ha;
         proxy_set_header Host $host;
-        proxy_set_header Authorization "Bearer HA_TOKEN_PLACEHOLDER";
+        proxy_set_header Authorization "Bearer ${HA_TOKEN}";
         proxy_set_header Accept "application/json";
     }
 

@@ -193,6 +193,7 @@ services:
       - DEYE_HA_PLUGIN_INVERTER_MANUFACTURER=Deye
       - DEYE_HA_PLUGIN_INVERTER_MODEL=SG04LP3
       - DEYE_HA_PLUGIN_EXPIRE_AFTER=600
+      - DEYE_HA_PLUGIN_IGNORE_TOPIC_PATTERNS=timeofuse/*:settings/workmode:settings/battery/grid_charge
 
   grafana:
     image: grafana/grafana:latest
@@ -647,9 +648,11 @@ services:
       - proxy
     volumes:
       - ./configs/solar-dashboard/index.html:/usr/share/nginx/html/index.html:ro
-      - ./configs/solar-dashboard/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./configs/solar-dashboard/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
     environment:
       - TZ=${TZ:-UTC}
+      - HA_TOKEN=${SOLAR_DASHBOARD_HA_TOKEN}
+      - NGINX_ENVSUBST_FILTER=^HA_TOKEN$
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.solar-dashboard.rule=Host(`solar.home.lan`)"

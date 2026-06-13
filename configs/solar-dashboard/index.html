@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Casa Solar</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☀️</text></svg>">
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>☀️</text></svg>">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 @font-face{font-family:'Inter';font-style:normal;font-display:swap;src:local('Inter')}
@@ -17,6 +19,7 @@
   --house:#38bdf8;--house-dim:rgba(56,189,248,0.15);--house-glow:rgba(56,189,248,0.25);
   --grid-import:#f43f5e;--grid-import-dim:rgba(244,63,94,0.15);--grid-import-glow:rgba(244,63,94,0.25);
   --grid-export:#10b981;
+  --charger:#a78bfa;--charger-dim:rgba(167,139,250,0.15);--charger-glow:rgba(167,139,250,0.25);
   --text:#e2e8f0;--text-dim:#94a3b8;--text-muted:#475569;
   --accent:#818cf8;--accent-dim:rgba(129,140,248,0.15);
 }
@@ -72,7 +75,7 @@ body{
 }
 .flow-title{font-size:11px;letter-spacing:1.8px;color:var(--text-muted);text-transform:uppercase;font-weight:600;margin-bottom:16px}
 
-.flow-container{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:5/4}
+.flow-container{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:5/5}
 
 /* Flow node positioning — inset enough so translate(-50%,-50%) doesn't clip */
 .flow-node{
@@ -82,7 +85,8 @@ body{
 .flow-node-solar{left:50%;top:14%}
 .flow-node-house{left:14%;top:50%}
 .flow-node-grid{left:86%;top:50%}
-.flow-node-battery{left:50%;top:86%}
+.flow-node-battery{left:25%;top:86%}
+.flow-node-charger{left:75%;top:86%}
 
 .node-card{
   padding:14px 18px;border-radius:16px;text-align:center;
@@ -125,6 +129,11 @@ body{
 .node-battery.active .node-card{box-shadow:0 0 40px var(--battery-glow),0 0 80px rgba(16,185,129,0.08)}
 .node-battery .node-icon-wrap svg{fill:var(--battery)}
 .node-battery .node-value{color:var(--battery)}
+
+.node-charger .node-card{background:linear-gradient(135deg,rgba(167,139,250,0.1),rgba(167,139,250,0.04));border-color:rgba(167,139,250,0.2)}
+.node-charger.active .node-card{box-shadow:0 0 40px var(--charger-glow),0 0 80px rgba(167,139,250,0.08)}
+.node-charger .node-icon-wrap svg{fill:var(--charger)}
+.node-charger .node-value{color:var(--charger)}
 
 .node-inactive{opacity:0.4}
 .node-inactive .node-card{box-shadow:none!important}
@@ -290,7 +299,8 @@ body{
   .flow-hub svg{width:15px;height:15px}
   .soc-bar-wrap{width:56px;height:5px}
   .flow-node-solar{top:14%}
-  .flow-node-battery{top:86%}
+  .flow-node-battery{left:20%;top:86%}
+  .flow-node-charger{left:80%;top:86%}
   .flow-node-house{left:14%}
   .flow-node-grid{left:86%}
   .stats-grid{grid-template-columns:repeat(2,1fr);gap:8px}
@@ -389,7 +399,7 @@ body{
         </div>
       </div>
 
-      <!-- Battery node (bottom) -->
+      <!-- Battery node (bottom-left) -->
       <div class="flow-node flow-node-battery node-battery" id="nodeBattery">
         <div class="node-card">
           <div class="node-icon-wrap">
@@ -399,6 +409,19 @@ body{
           <div class="node-value"><span id="batteryPower">0</span> <span class="node-unit">W</span></div>
           <div class="soc-bar-wrap"><div class="soc-bar" id="batteryBar"></div></div>
           <div class="node-detail" id="batteryDetail"></div>
+        </div>
+      </div>
+
+      <!-- Charger node (bottom-right) -->
+      <div class="flow-node flow-node-charger node-charger node-inactive" id="nodeCharger">
+        <div class="node-card">
+          <div class="node-icon-wrap">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 01-2-2v-4a2 2 0 012-2h1l2-4h10l2 4h1a2 2 0 012 2v4a2 2 0 01-2 2h-2"/><circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/><path d="M5 9h14"/><path d="M12 12v4m-2-2h4" stroke-width="1.5"/></svg>
+          </div>
+          <div class="node-label">Carregador</div>
+          <div class="node-value"><span id="chargerPower">0</span> <span class="node-unit" id="chargerUnit">W</span></div>
+          <div class="node-detail" id="chargerDetail">Desligado</div>
+          <button id="solarModeBtn" onclick="toggleSolarMode()" style="margin-top:6px;padding:4px 10px;border-radius:10px;border:1px solid rgba(167,139,250,0.3);background:rgba(167,139,250,0.15);color:var(--charger);font-size:9px;font-weight:600;cursor:pointer;letter-spacing:0.5px">AUTO: --</button>
         </div>
       </div>
     </div>
@@ -459,6 +482,31 @@ body{
     <div class="cost-item">
       <div class="cost-item-label">Poupaste</div>
       <div class="cost-item-value" style="color:var(--battery)"><span id="costSaved">--</span>&euro;</div>
+    </div>
+    <div class="cost-sep"></div>
+    <div class="cost-item">
+      <div class="cost-item-label">Investimento</div>
+      <div class="cost-item-value" style="color:var(--accent)"><span id="roiRemaining">--</span>&euro;</div>
+      <div style="font-size:10px;color:var(--text-muted);margin-top:2px"><span id="roiPercent">--</span>% recuperado</div>
+    </div>
+  </div>
+
+  <!-- SOLAR FORECAST -->
+  <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px">
+    <div class="stat-card">
+      <div class="stat-label">Previs&atilde;o restante</div>
+      <div class="stat-value" style="color:var(--solar)"><span id="forecastRemaining">--</span> <span class="stat-unit">kWh</span></div>
+      <div class="stat-sub" id="dayQuality">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Previs&atilde;o amanh&atilde;</div>
+      <div class="stat-value" style="color:var(--solar)"><span id="forecastTomorrow">--</span> <span class="stat-unit">kWh</span></div>
+      <div class="stat-sub" id="tomorrowQuality">--</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Plano do dia</div>
+      <div class="stat-value" style="color:var(--accent)"><span id="chargingPlan">--</span></div>
+      <div class="stat-sub" id="planDescription">--</div>
     </div>
   </div>
 
@@ -669,10 +717,21 @@ const ENTITIES = {
   inverterStatus: 'sensor.deye_inverter_mqtt_running_status',
   avoidedCost: 'sensor.solar_daily_avoided_cost',
   costWithoutSolar: 'sensor.electricity_cost_without_solar',
+  roiRemaining: 'sensor.solar_investment_remaining',
+  roiPercent: 'sensor.solar_investment_percent',
+  solarChargingMode: 'input_boolean.solar_charging_mode',
+  forecastRemaining: 'sensor.solar_forecast_remaining_today',
+  forecastTomorrow: 'sensor.solar_forecast_tomorrow_total',
+  dayQuality: 'sensor.solar_day_quality',
+  tomorrowQuality: 'sensor.solar_tomorrow_quality',
+  chargingPlan: 'sensor.solar_charging_plan',
   monthlyProd: 'sensor.producao_solar_mensal',
   monthlyImport: 'sensor.importacao_rede_mensal',
   monthlyExport: 'sensor.exportacao_rede_mensal',
   monthlyConsumption: 'sensor.consumo_casa_mensal',
+  chargerPower: 'sensor.evse_10_10_99_71_potencia_de_carregamento',
+  chargerConnected: 'binary_sensor.evse_10_10_99_71_ligado',
+  chargerCharging: 'binary_sensor.evse_10_10_99_71_a_carregar',
   tesla1State: 'sensor.model_3_state',
   tesla1Battery: 'sensor.model_3_battery',
   tesla1ChargingState: 'sensor.model_3_charging',
@@ -720,6 +779,20 @@ function setText(id, val) {
 function setDisplay(id, show) {
   const el = document.getElementById(id);
   if (el) el.style.display = show ? '' : 'none';
+}
+
+async function toggleSolarMode() {
+  const current = state.solarChargingMode === 'on';
+  const service = current ? 'turn_off' : 'turn_on';
+  try {
+    await fetch('/ha-api/services/input_boolean/' + service, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({entity_id: 'input_boolean.solar_charging_mode'})
+    });
+    state.solarChargingMode = current ? 'off' : 'on';
+    updateUI();
+  } catch(e) { console.error('Toggle failed:', e); }
 }
 
 // ============================
@@ -917,6 +990,7 @@ function getFlowGeometry() {
   const house   = nodeCenter('.flow-node-house');
   const grid    = nodeCenter('.flow-node-grid');
   const battery = nodeCenter('.flow-node-battery');
+  const charger = nodeCenter('.flow-node-charger');
   const hub     = { x: w * 0.50, y: h * 0.50 };
 
   const nodeOffY = Math.min(h * 0.10, 52);
@@ -948,6 +1022,12 @@ function getFlowGeometry() {
       cp1:   { x: hub.x, y: hub.y + hubR + (battery.y - nodeOffY - hub.y - hubR) * 0.4 },
       cp2:   { x: battery.x, y: battery.y - nodeOffY - (battery.y - nodeOffY - hub.y - hubR) * 0.4 },
     },
+    hubToCharger: {
+      start: { x: hub.x + hubR * 0.7, y: hub.y + hubR * 0.7 },
+      end:   { x: charger.x, y: charger.y - nodeOffY },
+      cp1:   { x: hub.x + hubR * 0.7 + (charger.x - hub.x - hubR * 0.7) * 0.35, y: hub.y + hubR * 0.7 + (charger.y - nodeOffY - hub.y - hubR * 0.7) * 0.15 },
+      cp2:   { x: charger.x - (charger.x - hub.x - hubR * 0.7) * 0.15, y: charger.y - nodeOffY - (charger.y - nodeOffY - hub.y - hubR * 0.7) * 0.35 },
+    },
     hub,
   };
 }
@@ -975,26 +1055,29 @@ function bezierPoint(seg, t) {
 // ============================
 // Determine active flows
 // ============================
-function computeFlows(pv, load, grid, batt) {
+function computeFlows(pv, load, grid, batt, chargerPow) {
   const flows = [];
   const T = FLOW_THRESHOLD;
 
   const solarActive = pv > T;
-  const battCharging = batt > T;
-  const battDischarging = batt < -T;
+  const battCharging = batt < -T;     // Deye: negative = charging
+  const battDischarging = batt > T;   // Deye: positive = discharging
   const gridImporting = grid > T;
   const gridExporting = grid < -T;
   const houseConsuming = load > T;
+  const chargerActive = chargerPow > T;
 
   if (solarActive && houseConsuming) {
     const val = Math.min(pv, load);
     flows.push({ id: 'solar-house', segments: ['solarToHub', 'hubToHouse'], direction: 'forward', value: val, color: '#f59e0b' });
   }
 
+  const absBatt = Math.abs(batt);
+
   if (solarActive && battCharging) {
     const solarSurplusForBatt = Math.max(0, pv - load);
-    if (solarSurplusForBatt > T || (pv > T && batt > T && !gridImporting)) {
-      const val = Math.min(batt, pv);
+    if (solarSurplusForBatt > T || (pv > T && battCharging && !gridImporting)) {
+      const val = Math.min(absBatt, pv);
       flows.push({ id: 'solar-batt', segments: ['solarToHub', 'hubToBattery'], direction: 'forward', value: val, color: '#f59e0b' });
     }
   }
@@ -1010,18 +1093,26 @@ function computeFlows(pv, load, grid, batt) {
   }
 
   if (battCharging && gridImporting) {
-    const solarContrib = solarActive ? Math.min(pv, batt) : 0;
-    const gridContrib = batt - solarContrib;
+    const solarContrib = solarActive ? Math.min(pv, absBatt) : 0;
+    const gridContrib = absBatt - solarContrib;
     if (gridContrib > T) {
       flows.push({ id: 'grid-batt', segments: ['hubToGrid', 'hubToBattery'], direction: 'reverse-first', value: gridContrib, color: '#f43f5e' });
     }
   } else if (battCharging && !solarActive) {
-    flows.push({ id: 'grid-batt', segments: ['hubToGrid', 'hubToBattery'], direction: 'reverse-first', value: batt, color: '#f43f5e' });
+    flows.push({ id: 'grid-batt', segments: ['hubToGrid', 'hubToBattery'], direction: 'reverse-first', value: absBatt, color: '#f43f5e' });
   }
 
   if (battDischarging && houseConsuming) {
-    const val = Math.min(Math.abs(batt), load);
+    const val = Math.min(absBatt, load);
     flows.push({ id: 'batt-house', segments: ['hubToBattery', 'hubToHouse'], direction: 'reverse-first', value: val, color: '#10b981' });
+  }
+
+  if (chargerActive) {
+    if (solarActive) {
+      flows.push({ id: 'solar-charger', segments: ['solarToHub', 'hubToCharger'], direction: 'forward', value: chargerPow, color: '#a78bfa' });
+    } else if (gridImporting) {
+      flows.push({ id: 'grid-charger', segments: ['hubToGrid', 'hubToCharger'], direction: 'reverse-first', value: chargerPow, color: '#f43f5e' });
+    }
   }
 
   return flows;
@@ -1032,7 +1123,7 @@ function computeFlows(pv, load, grid, batt) {
 // ============================
 let currentFlowState = [];
 
-function updateFlowDiagram(pv, load, grid, batt) {
+function updateFlowDiagram(pv, load, grid, batt, chargerPow) {
   const svg = document.getElementById('flowSvg');
   const geo = getFlowGeometry();
   if (!geo) return;
@@ -1072,6 +1163,7 @@ function updateFlowDiagram(pv, load, grid, batt) {
     { key: 'hubToHouse', color: '#38bdf8' },
     { key: 'hubToGrid', color: '#f43f5e' },
     { key: 'hubToBattery', color: '#10b981' },
+    { key: 'hubToCharger', color: '#a78bfa' },
   ];
 
   allSegments.forEach(seg => {
@@ -1086,7 +1178,7 @@ function updateFlowDiagram(pv, load, grid, batt) {
     svg.appendChild(path);
   });
 
-  const flows = computeFlows(pv, load, grid, batt);
+  const flows = computeFlows(pv, load, grid, batt, chargerPow);
   currentFlowState = [];
 
   flows.forEach(flow => {
@@ -1224,10 +1316,14 @@ function updateUI() {
   const grid = num(state.gridPower);
   const batt = num(state.batteryPower);
   const soc = num(state.batterySOC);
+  const chargerPow = num(state.chargerPower);
+  const chargerConnected = state.chargerConnected === 'on';
+  const chargerCharging = state.chargerCharging === 'on';
+  const houseOnly = Math.max(0, load - chargerPow);
 
   // Node values
   setText('pvPower', pv);
-  setText('loadPower', load);
+  setText('loadPower', houseOnly);
   setText('batteryPower', Math.abs(batt));
   setText('batterySOC', soc + '%');
 
@@ -1249,6 +1345,7 @@ function updateUI() {
   const nodeHouse = document.getElementById('nodeHouse');
   const nodeGrid = document.getElementById('nodeGrid');
   const nodeBattery = document.getElementById('nodeBattery');
+  const nodeCharger = document.getElementById('nodeCharger');
 
   nodeSolar.classList.toggle('active', pv > FLOW_THRESHOLD);
   nodeSolar.classList.toggle('node-inactive', pv <= FLOW_THRESHOLD);
@@ -1279,11 +1376,11 @@ function updateUI() {
   else if (soc > 25) battBar.style.background = 'linear-gradient(90deg, #eab308, #fbbf24)';
   else battBar.style.background = 'linear-gradient(90deg, #f43f5e, #fb7185)';
 
-  if (batt > FLOW_THRESHOLD) {
+  if (batt < -FLOW_THRESHOLD) {
     setText('batteryDetail', 'A carregar');
     nodeBattery.classList.add('active');
     nodeBattery.classList.remove('node-inactive');
-  } else if (batt < -FLOW_THRESHOLD) {
+  } else if (batt > FLOW_THRESHOLD) {
     setText('batteryDetail', 'A descarregar');
     nodeBattery.classList.add('active');
     nodeBattery.classList.remove('node-inactive');
@@ -1292,6 +1389,29 @@ function updateUI() {
     setText('batteryDetail', temp > 0 ? temp + ' °C' : 'Em espera');
     nodeBattery.classList.remove('active');
     nodeBattery.classList.toggle('node-inactive', Math.abs(batt) <= FLOW_THRESHOLD);
+  }
+
+  // Charger node
+  if (chargerCharging && chargerPow > 100) {
+    const dispPow = chargerPow >= 1000 ? (chargerPow / 1000).toFixed(1) : chargerPow;
+    const unit = chargerPow >= 1000 ? 'kW' : 'W';
+    setText('chargerPower', dispPow);
+    setText('chargerUnit', unit);
+    setText('chargerDetail', 'A carregar');
+    nodeCharger.classList.add('active');
+    nodeCharger.classList.remove('node-inactive');
+  } else if (chargerConnected) {
+    setText('chargerPower', '0');
+    setText('chargerUnit', 'W');
+    setText('chargerDetail', 'Ligado');
+    nodeCharger.classList.remove('active');
+    nodeCharger.classList.add('node-inactive');
+  } else {
+    setText('chargerPower', '0');
+    setText('chargerUnit', 'W');
+    setText('chargerDetail', 'Desligado');
+    nodeCharger.classList.remove('active');
+    nodeCharger.classList.add('node-inactive');
   }
 
   // Stats
@@ -1314,6 +1434,32 @@ function updateUI() {
   setText('costWithout', costWithout.toFixed(2));
   setText('costReal', costReal.toFixed(2));
   setText('costSaved', avoided.toFixed(2));
+  setText('roiRemaining', num(state.roiRemaining, 0));
+  setText('roiPercent', num(state.roiPercent, 1));
+
+  // Forecast
+  setText('forecastRemaining', num(state.forecastRemaining, 1));
+  setText('forecastTomorrow', num(state.forecastTomorrow, 1));
+  const dq = state.dayQuality || '--';
+  const tq = state.tomorrowQuality || '--';
+  const qualityEmoji = {'bom': '☀️', 'moderado': '⛅', 'fraco': '☁️'};
+  setText('dayQuality', (qualityEmoji[dq] || '') + ' ' + dq);
+  setText('tomorrowQuality', (qualityEmoji[tq] || '') + ' ' + tq);
+  const plan = state.chargingPlan || '--';
+  const planLabels = {'paralelo': 'Paralelo', 'excesso': 'Excesso', 'bateria': 'Bateria'};
+  const planDescs = {'paralelo': 'Tesla + bateria juntos', 'excesso': 'Tesla so com excesso', 'bateria': 'Prioridade bateria'};
+  setText('chargingPlan', planLabels[plan] || plan);
+  setText('planDescription', planDescs[plan] || '');
+
+  // Solar charging mode toggle button
+  const solarMode = state.solarChargingMode === 'on';
+  const btn = document.getElementById('solarModeBtn');
+  if (btn) {
+    btn.textContent = solarMode ? 'AUTO: ON' : 'AUTO: OFF';
+    btn.style.background = solarMode ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)';
+    btn.style.color = solarMode ? 'var(--battery)' : 'var(--grid-import)';
+    btn.style.borderColor = solarMode ? 'rgba(16,185,129,0.4)' : 'rgba(244,63,94,0.4)';
+  }
 
   // Header badges
   const tariff = state.tariffPeriod || '--';
@@ -1355,7 +1501,7 @@ function updateUI() {
   updatePeak(pv);
 
   // Update flow diagram
-  updateFlowDiagram(pv, load, grid, batt);
+  updateFlowDiagram(pv, load, grid, batt, chargerPow);
 }
 
 // ============================
@@ -1370,19 +1516,21 @@ function updateClock() {
 }
 
 // ============================
-// Data fetching — WebSocket (primary) + REST (fallback/initial)
+// Data fetching — REST through nginx.
+// Keep the Home Assistant token server-side in nginx; never expose it to the browser.
 // ============================
-const HA_TOKEN = '%%HA_TOKEN%%';
 let ws = null;
 let wsMessageId = 1;
 let wsConnected = false;
 let wsReconnectTimer = null;
+const USE_WEBSOCKET = false;
 const entityIdToKey = {};
 for (const [key, entityId] of Object.entries(ENTITIES)) {
   entityIdToKey[entityId] = key;
 }
 
 function connectWebSocket() {
+  if (!USE_WEBSOCKET) return;
   if (ws && (ws.readyState === WebSocket.CONNECTING || ws.readyState === WebSocket.OPEN)) return;
 
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
@@ -1396,7 +1544,10 @@ function connectWebSocket() {
     const msg = JSON.parse(event.data);
 
     if (msg.type === 'auth_required') {
-      ws.send(JSON.stringify({ type: 'auth', access_token: HA_TOKEN }));
+      console.info('WS auth requested; using REST polling to keep HA token server-side');
+      wsConnected = false;
+      ws.close();
+      startRestPolling();
     }
 
     else if (msg.type === 'auth_ok') {
@@ -1425,6 +1576,7 @@ function connectWebSocket() {
 
   ws.onclose = () => {
     wsConnected = false;
+    if (!USE_WEBSOCKET) return;
     console.log('WS closed, reconnecting in 5s...');
     clearTimeout(wsReconnectTimer);
     wsReconnectTimer = setTimeout(connectWebSocket, 5000);
@@ -1606,16 +1758,15 @@ function handleResize() {
   const load = num(state.loadPower);
   const grid = num(state.gridPower);
   const batt = num(state.batteryPower);
-  updateFlowDiagram(pv, load, grid, batt);
+  const chargerPow = num(state.chargerPower);
+  updateFlowDiagram(pv, load, grid, batt, chargerPow);
 }
 
 updateClock();
 setInterval(updateClock, 30000);
 
-// Initial REST fetch for full state, then switch to WebSocket for real-time
-fetchStates().then(() => {
-  connectWebSocket();
-});
+fetchStates();
+startRestPolling();
 
 fetchHistory();
 setInterval(fetchHistory, HISTORY_INTERVAL);
